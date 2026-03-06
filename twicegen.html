@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>二次根式 · 简洁折叠 · 烟花微光</title>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Inter 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 30%, #1b3b4f, #0d1c2b);
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: #eef5ff;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* 烟花 canvas — 不干扰任何点击 */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;  /* 让所有鼠标事件穿透 */
+            z-index: 9999;
+        }
+
+        /* 主毛玻璃容器 */
+        .glass-panel {
+            max-width: 1400px;
+            width: 100%;
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(18, 30, 41, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 3.5rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            animation: floatIn 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        @keyframes floatIn {
+            0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 头部 */
+        .hero {
+            display: flex;
+            align-items: center;
+            gap: 1.2rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+        .hero i {
+            font-size: 3.2rem;
+            color: rgba(210, 240, 255, 0.9);
+            filter: drop-shadow(0 8px 12px rgba(0,40,60,0.6));
+            transition: transform 0.3s ease;
+        }
+        .hero:hover i {
+            transform: rotate(6deg) scale(1.05);
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(130deg, #ffffff, #c7e9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 20px rgba(0,160,255,0.3);
+        }
+        .hero .sub {
+            font-size: 1.2rem;
+            font-weight: 300;
+            margin-left: auto;
+            background: rgba(255,255,255,0.1);
+            padding: 0.6rem 1.5rem;
+            border-radius: 40px;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(5px);
+        }
+
+        /* 卡片网格 — 折叠卡片区 + 练习卡 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        /* 所有卡片 (包括折叠卡) 公用毛玻璃样式 */
+        .card {
+            background: rgba(25, 35, 50, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2.2rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+            animation: cardGlow 6s infinite alternate;
+            height: fit-content;
+        }
+        .card:hover {
+            border-color: rgba(255, 255, 255, 0.25);
+            box-shadow: 0 25px 45px -8px rgba(0, 180, 255, 0.3);
+            background: rgba(30, 45, 60, 0.5);
+        }
+        @keyframes cardGlow {
+            0% { box-shadow: 0 12px 30px -10px rgba(0,40,60,0.7); }
+            100% { box-shadow: 0 18px 40px -5px rgba(70, 180, 230, 0.5); }
+        }
+
+        /* 折叠卡片头部 — 点击区域 */
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 1.8rem 1.2rem 1.8rem;
+            cursor: pointer;
+            user-select: none;
+            border-bottom: 2px solid transparent;
+            transition: border-color 0.2s;
+        }
+        .card-header h2 {
+            font-size: 1.8rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 0.7rem;
+        }
+        .card-header h2 i {
+            font-size: 1.8rem;
+            color: #9ac9ff;
+        }
+        .card-header .chevron {
+            font-size: 1.6rem;
+            color: rgba(200, 230, 255, 0.7);
+            transition: transform 0.3s ease;
+        }
+        .card-header.collapsed .chevron {
+            transform: rotate(-90deg);
+        }
+
+        /* 卡片内容区域 — 用于折叠动画 */
+        .card-content {
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), padding 0.2s;
+            max-height: 600px;   /* 足够展示内容 */
+            padding: 0 1.8rem 1.8rem 1.8rem;
+        }
+        .card-content.collapsed {
+            max-height: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        /* 练习卡片 (不折叠，特殊样式) */
+        .practice-card {
+            grid-column: span 2;  /* 宽卡占两列 */
+            background: linear-gradient(145deg, rgba(30, 45, 65, 0.5), rgba(15, 30, 45, 0.6));
+            border: 1px solid rgba(130, 200, 255, 0.25);
+        }
+        .practice-card .card-header {
+            cursor: default;      /* 练习卡片头部不可折叠 */
+            border-bottom: none;
+            padding-bottom: 0.5rem;
+        }
+        .practice-card .card-header .chevron {
+            display: none;        /* 隐藏箭头 */
+        }
+        .practice-card .card-content {
+            max-height: none;      /* 永远展开 */
+            padding: 0 1.8rem 1.8rem 1.8rem;
+        }
+
+        /* 内部文字样式 */
+        .prop-list {
+            list-style: none;
+        }
+        .prop-list li {
+            margin-bottom: 0.9rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: baseline;
+            gap: 0.7rem;
+        }
+        .prop-list li i {
+            width: 1.4rem;
+            color: #6fc3ff;
+            font-size: 1rem;
+        }
+        .math {
+            font-family: 'Courier New', monospace;
+            background: rgba(0, 20, 30, 0.5);
+            padding: 0.2rem 0.6rem;
+            border-radius: 28px;
+            border: 1px solid rgba(255,255,255,0.1);
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+        .example-box {
+            background: rgba(0, 15, 25, 0.4);
+            border-radius: 1.8rem;
+            padding: 1.2rem 1.5rem;
+            margin-top: 1rem;
+            border: 1px dashed rgba(255,255,255,0.2);
+            font-size: 1.2rem;
+        }
+        .example-box .step {
+            color: #b3e0ff;
+            margin-right: 0.8rem;
+        }
+
+        /* 随机练习部分样式 */
+        .question-box {
+            background: rgba(0, 0, 0, 0.25);
+            border-radius: 3rem;
+            padding: 1.8rem 2.2rem;
+            margin: 1rem 0 1.2rem 0;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+            backdrop-filter: blur(6px);
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.4);
+        }
+        .question-text {
+            font-size: 3.2rem;
+            font-weight: 600;
+            word-break: break-word;
+            color: #f0f9ff;
+            text-shadow: 0 2px 10px #0099ff80;
+            letter-spacing: 1px;
+        }
+        .answer-area {
+            font-size: 2.4rem;
+            font-weight: 500;
+            min-height: 5rem;
+            padding: 0.8rem 1.8rem;
+            background: rgba(0, 30, 45, 0.5);
+            border-radius: 3rem;
+            margin: 1rem 0 1.5rem 0;
+            border: 1px solid rgba(120, 200, 255, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s;
+            color: #c6edff;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1.2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+        .btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 0.9rem 2.2rem;
+            border-radius: 3rem;
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: white;
+            cursor: pointer;
+            transition: 0.2s;
+            backdrop-filter: blur(10px);
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            box-shadow: 0 8px 20px -10px black;
+        }
+        .btn:hover {
+            background: rgba(70, 160, 240, 0.5);
+            border-color: rgba(255, 255, 255, 0.5);
+            transform: scale(1.05);
+            box-shadow: 0 12px 28px -5px #0099ff;
+        }
+
+        .footnote {
+            text-align: right;
+            font-size: 0.95rem;
+            opacity: 0.7;
+            margin-top: 1.8rem;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1.2rem;
+        }
+        .footnote span {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 0.3rem;
+        }
+
+        /* 手机端优化 */
+        @media (max-width: 700px) {
+            .glass-panel { padding: 1.5rem; border-radius: 2rem; }
+            .hero h1 { font-size: 2.4rem; }
+            .hero .sub { margin-left: 0; width: 100%; text-align: center; }
+            .grid { grid-template-columns: 1fr; } /* 单列 */
+            .practice-card { grid-column: span 1; } /* 取消占两列 */
+            .card-header h2 { font-size: 1.5rem; }
+            .question-text { font-size: 2.2rem; }
+            .answer-area { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 烟花canvas (透明、无交互) -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <div class="glass-panel">
+        <!-- 头部区 unchanged -->
+        <div class="hero">
+            <i class="fas fa-square-root-alt"></i>
+            <h1>二次根式 · 折叠花园</h1>
+            <div class="sub"><i class="fas fa-feather"></i> 简洁·展开·除法</div>
+        </div>
+
+        <!-- 折叠卡片网格 (五个知识点) + 练习区大卡 -->
+        <div class="grid">
+            <!-- 1. 定义卡片 (折叠) -->
+            <div class="card fold-card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2><i class="fas fa-book-open"></i> 定义</h2>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </div>
+                <div class="card-content">
+                    <p style="font-size:1.1rem; margin-bottom:1rem;">形如 <span class="math">√a</span> (a ≥ 0) 的式子叫做<strong>二次根式</strong>。 <br> <span style="color: #b3dfff;">a 称为被开方数，根指数 2 通常省略。</span></p>
+                    <div class="example-box">
+                        <i class="fas fa-check-circle" style="color: #6ec8ff;"></i> 例如：<span class="math">√2</span> , <span class="math">√(x+1)</span> (x≥-1) , <span class="math">√0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2. 性质卡片 (折叠) -->
+            <div class="card fold-card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2><i class="fas fa-cubes"></i> 性质</h2>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </div>
+                <div class="card-content">
+                    <ul class="prop-list">
+                        <li><i class="fas fa-angle-right"></i> <span class="math">(√a)² = a</span> &nbsp; (a ≥ 0)</li>
+                        <li><i class="fas fa-angle-right"></i> <span class="math">√(a²) = |a|</span></li>
+                        <li><i class="fas fa-angle-right"></i> <span class="math">√(ab) = √a · √b</span> (a≥0,b≥0)</li>
+                        <li><i class="fas fa-angle-right"></i> <span class="math">√(a/b) = √a / √b</span> (a≥0,b>0)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- 3. 化简卡片 (折叠) -->
+            <div class="card fold-card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2><i class="fas fa-magic"></i> 化简</h2>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </div>
+                <div class="card-content">
+                    <p>把被开方数中的<strong>平方因子</strong>提到根号外：</p>
+                    <div class="example-box">
+                        <div><span class="step">①</span> <span class="math">√12 = 2√3</span></div>
+                        <div><span class="step">②</span> <span class="math">√72 = 6√2</span></div>
+                        <div><span class="step">③</span> <span class="math">√50 = 5√2</span></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4. 同类与运算卡片 (折叠) 原同类 + 加减乘 -->
+            <div class="card fold-card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2><i class="fas fa-link"></i> 同类 & 运算</h2>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </div>
+                <div class="card-content">
+                    <p>最简二次根式中，被开方数相同则称为同类。</p>
+                    <div style="background: rgba(255,255,255,0.05); border-radius:1.2rem; padding:0.8rem 1.2rem; margin:1rem 0;">
+                        <i class="fas fa-plus-circle" style="color:#a3d8ff;"></i> <span class="math">2√3 + 5√3 = 7√3</span><br>
+                        <i class="fas fa-minus-circle" style="color:#ffb3b3;"></i> <span class="math">8√5 – √5 = 7√5</span><br>
+                        <i class="fas fa-times"></i> <span class="math">√2·√3 = √6</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 5. 新增除法 & 有理化卡片 (折叠) -->
+            <div class="card fold-card">
+                <div class="card-header" onclick="toggleCard(this)">
+                    <h2><i class="fas fa-divide"></i> 除法 & 有理化</h2>
+                    <i class="fas fa-chevron-down chevron"></i>
+                </div>
+                <div class="card-content">
+                    <ul class="prop-list">
+                        <li><i class="fas fa-angle-right"></i> <span class="math">√a / √b = √(a/b)</span> (a≥0, b>0)</li>
+                        <li><i class="fas fa-angle-right"></i> 分母有理化: <span class="math">1/√2 = √2/2</span></li>
+                    </ul>
+                    <div class="example-box">
+                        <span class="step">例</span> <span class="math">√8 / √2 = √(8/2)=√4=2</span><br>
+                        <span class="step">例</span> <span class="math">3/√3 = √3</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 随机练习大卡片 (不折叠) -->
+            <div class="card practice-card">
+                <div class="card-header">
+                    <h2><i class="fas fa-dice"></i> 随机根式练习 · 加减乘除</h2>
+                    <span style="background: rgba(0,200,255,0.2); padding:0.3rem 1rem; border-radius: 40px; font-size:0.95rem;">
+                        <i class="fas fa-brain"></i> 自动生成
+                    </span>
+                </div>
+                <div class="card-content">
+                    <div class="question-box">
+                        <div style="font-size:1.1rem; opacity:0.8; margin-bottom:0.5rem;">📐 当前题目</div>
+                        <div class="question-text" id="questionDisplay">√18</div>
+                    </div>
+                    <div class="answer-area" id="answerDisplay">
+                        <i class="fas fa-ellipsis-h"></i> 点击「显示答案」
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn" id="showAnswerBtn"><i class="fas fa-lightbulb"></i> 显示答案</button>
+                        <button class="btn" id="newQuestionBtn"><i class="fas fa-shuffle"></i> 下一题</button>
+                    </div>
+                    <div style="font-size:1rem; margin-top:1.4rem; color: #b0d5ee; display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                        <span><i class="far fa-circle-check"></i> 化简 / 同类 / 乘除</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 脚注 + 工作室声明 -->
+        <div class="footnote">
+            <i class="fas fa-feather"></i> 毛玻璃之下 · 二次根式的精确之美<br>
+            <h1>wlzp™工作室开发</h1>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // ---------- 折叠卡片逻辑 (所有 .fold-card) ----------
+            window.toggleCard = function(header) {
+                const card = header.closest('.fold-card');
+                if (!card) return;
+                const content = card.querySelector('.card-content');
+                const chevron = header.querySelector('.chevron');
+                if (!content || !chevron) return;
+
+                // 切换 collapsed 类
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
+            };
+
+            // 默认所有卡片为展开 (但确保初始状态是展开的，去掉collapsed)
+            document.querySelectorAll('.fold-card .card-content').forEach(el => el.classList.remove('collapsed'));
+            document.querySelectorAll('.fold-card .card-header').forEach(el => el.classList.remove('collapsed'));
+
+            // ---------- 随机题目生成 (包含除法) ----------
+            function simplifyRadical(n) {
+                if (n === 0) return [0, 0];
+                if (n === 1) return [1, 1];
+                let coef = 1;
+                let rad = n;
+                while (true) {
+                    let found = false;
+                    for (let i = Math.floor(Math.sqrt(rad)); i >= 2; i--) {
+                        if (rad % (i * i) === 0) {
+                            coef *= i;
+                            rad /= (i * i);
+                            found = true;
+                            break;
+                        }
+                    }
+                    if (!found) break;
+                }
+                return [coef, rad];
+            }
+
+            function formatRadical(coef, rad) {
+                if (rad === 0) return "0";
+                if (rad === 1) return coef.toString();
+                if (coef === 0) return "0";
+                if (coef === 1) return "√" + (rad > 9 ? "(" + rad + ")" : rad);
+                return coef + "√" + (rad > 9 ? "(" + rad + ")" : rad);
+            }
+
+            function formatTerm(coef, rad) {
+                return formatRadical(coef, rad);
+            }
+
+            const radicalBase = [2, 3, 5, 6, 7, 10, 11, 13, 14, 15, 17, 19, 21, 22, 23, 26, 29, 30, 31, 33, 34, 35, 37, 38, 39, 41, 42, 43, 46, 47, 51];
+
+            function generateRandomQuestion() {
+                const type = Math.floor(Math.random() * 4); // 0:化简,1:加减,2:乘法,3:除法
+
+                // 化简
+                if (type === 0) {
+                    let num = Math.floor(Math.random() * 65) + 4;
+                    const [coef, rad] = simplifyRadical(num);
+                    return { questionText: `化简： √${num}`, answerText: formatRadical(coef, rad) };
+                }
+                // 加减同类
+                if (type === 1) {
+                    const base = radicalBase[Math.floor(Math.random() * radicalBase.length)];
+                    let coef1 = Math.floor(Math.random() * 5) + 1;
+                    let coef2 = Math.floor(Math.random() * 5) + 1;
+                    const op = Math.random() > 0.5 ? '+' : '-';
+                    if (op === '+') {
+                        return {
+                            questionText: `${formatTerm(coef1, base)} + ${formatTerm(coef2, base)} = ?`,
+                            answerText: formatTerm(coef1 + coef2, base)
+                        };
+                    } else {
+                        if (coef1 < coef2) [coef1, coef2] = [coef2, coef1];
+                        return {
+                            questionText: `${formatTerm(coef1, base)} - ${formatTerm(coef2, base)} = ?`,
+                            answerText: coef1 === coef2 ? "0" : formatTerm(coef1 - coef2, base)
+                        };
+                    }
+                }
+                // 乘法 √a · √b
+                if (type === 2) {
+                    let a = Math.floor(Math.random() * 18) + 2;
+                    let b = Math.floor(Math.random() * 18) + 2;
+                    const [coef, rad] = simplifyRadical(a * b);
+                    return { questionText: `√${a} · √${b} = ?`, answerText: formatRadical(coef, rad) };
+                }
+                // 除法 √a / √b  或者 √(a/b) 风格，生成简洁结果
+                if (type === 3) {
+                    // 尽量让 a/b 是整数或可化简，例如 √8 / √2 = 2
+                    let b = radicalBase[Math.floor(Math.random() * radicalBase.length)];
+                    // 选择a使得a/b是平方数或整数因子
+                    let candidates = [];
+                    for (let mult = 1; mult <= 8; mult++) {
+                        let candidate = b * mult * mult; // 保证 √(a) / √b = √(mult^2) = mult 或者 mult * √?
+                        if (candidate < 80) candidates.push(candidate);
+                    }
+                    let a;
+                    if (candidates.length > 0 && Math.random() > 0.3) {
+                        a = candidates[Math.floor(Math.random() * candidates.length)];
+                    } else {
+                        a = b * (Math.floor(Math.random() * 4) + 1); // 保证可化简
+                    }
+                    // 计算 a / b 的简化
+                    const ratio = a / b;
+                    const [coef, rad] = simplifyRadical(ratio);
+                    let answer = formatRadical(coef, rad);
+                    // 防止出现 √(小数) 但 ratio 为整数或平方数，没问题
+                    return { questionText: `√${a} ÷ √${b} = ?`, answerText: answer };
+                }
+                return { questionText: "√2", answerText: "√2" };
+            }
+
+            // DOM 元素
+            const questionDisplay = document.getElementById('questionDisplay');
+            const answerDisplay = document.getElementById('answerDisplay');
+            const showAnswerBtn = document.getElementById('showAnswerBtn');
+            const newQuestionBtn = document.getElementById('newQuestionBtn');
+
+            let currentAnswer = "3√2";
+
+            function updateQuestionUI(qObj) {
+                questionDisplay.textContent = qObj.questionText;
+                currentAnswer = qObj.answerText;
+                answerDisplay.innerHTML = `<i class="fas fa-ellipsis-h"></i> 点击「显示答案」`;
+            }
+
+            // 初始随机
+            updateQuestionUI(generateRandomQuestion());
+
+            showAnswerBtn.addEventListener('click', function() {
+                answerDisplay.innerHTML = `=  ${currentAnswer}`;
+                answerDisplay.style.background = 'rgba(20, 80, 120, 0.6)';
+                setTimeout(() => answerDisplay.style.background = 'rgba(0, 30, 45, 0.5)', 150);
+            });
+
+            newQuestionBtn.addEventListener('click', function() {
+                updateQuestionUI(generateRandomQuestion());
+            });
+
+            // ---------- 烟花特效 (极简粒子) ----------
+            const canvas = document.getElementById('fireworks-canvas');
+            const ctx = canvas.getContext('2d');
+            let width, height;
+            let particles = [];
+
+            function resizeCanvas() {
+                width = window.innerWidth;
+                height = window.innerHeight;
+                canvas.width = width;
+                canvas.height = height;
+            }
+            window.addEventListener('resize', resizeCanvas);
+            resizeCanvas();
+
+            function createFirework(x, y) {
+                const count = 14 + Math.floor(Math.random() * 10);
+                for (let i = 0; i < count; i++) {
+                    const angle = Math.random() * 2 * Math.PI;
+                    const speed = 2 + Math.random() * 5;
+                    const vx = Math.cos(angle) * speed * (0.5 + Math.random() * 0.8);
+                    const vy = Math.sin(angle) * speed * (0.5 + Math.random() * 0.8);
+                    const life = 0.8 + Math.random() * 0.8;
+                    particles.push({
+                        x, y,
+                        vx, vy,
+                        size: 3 + Math.random() * 5,
+                        color: `hsl(${Math.random() * 60 + 200}, 80%, 70%)`, // 蓝白色系
+                        life: life,
+                        maxLife: life
+                    });
+                }
+            }
+
+            function animateParticles() {
+                ctx.clearRect(0, 0, width, height);
+                for (let i = particles.length - 1; i >= 0; i--) {
+                    const p = particles[i];
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.05; // 微弱重力
+                    p.life -= 0.008;
+                    if (p.life <= 0 || p.y > height + 50 || p.x < -50 || p.x > width + 50) {
+                        particles.splice(i, 1);
+                        continue;
+                    }
+                    ctx.globalAlpha = p.life * 0.8;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife) * 1.2, 0, Math.PI * 2);
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                }
+                requestAnimationFrame(animateParticles);
+            }
+            animateParticles();
+
+            // 监听点击事件 (避开按钮？但pointer-events:none canvas，事件会穿透到dom，我们在document上监听)
+            document.addEventListener('click', function(e) {
+                // 生成几个烟花粒子 (不影响任何操作)
+                createFirework(e.clientX, e.clientY);
+            });
+        })();
+    </script>
+</body>
+</html>

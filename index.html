@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
+    <title>数学秘境 · 导航主页</title>
+    <!-- Font Awesome 6 (免费) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Inter 字体 -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            background: radial-gradient(circle at 10% 30%, #1b3b4f, #0d1c2b);
+            background-attachment: fixed;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            color: #eef5ff;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        /* 烟花 canvas — 穿透点击 */
+        #fireworks-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 9999;
+        }
+
+        /* 主毛玻璃容器 */
+        .glass-panel {
+            max-width: 1200px;
+            width: 100%;
+            backdrop-filter: blur(16px) saturate(180%);
+            -webkit-backdrop-filter: blur(16px) saturate(180%);
+            background: rgba(18, 30, 41, 0.45);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 3.5rem;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.1);
+            padding: 2.5rem;
+            animation: floatIn 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+            text-align: center;
+        }
+
+        @keyframes floatIn {
+            0% { opacity: 0; transform: translateY(40px) scale(0.98); }
+            100% { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        /* 头部 */
+        .hero {
+            margin-bottom: 3rem;
+        }
+        .hero i {
+            font-size: 4rem;
+            color: rgba(210, 240, 255, 0.9);
+            filter: drop-shadow(0 8px 12px rgba(0,40,60,0.6));
+            margin-bottom: 1rem;
+        }
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(130deg, #ffffff, #c7e9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 4px 20px rgba(0,160,255,0.3);
+        }
+        .hero p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            margin-top: 0.5rem;
+        }
+
+        /* 卡片网格 */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        /* 导航卡片 */
+        .nav-card {
+            background: rgba(25, 35, 50, 0.5);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 2.5rem;
+            padding: 2.5rem 1.8rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 15px 30px -10px rgba(0, 0, 0, 0.5);
+            animation: cardGlow 6s infinite alternate;
+            text-decoration: none;
+            color: inherit;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            cursor: pointer;
+        }
+        .nav-card:hover {
+            transform: translateY(-12px) scale(1.02);
+            border-color: rgba(255, 255, 255, 0.4);
+            box-shadow: 0 30px 50px -15px rgba(0, 180, 255, 0.6);
+            background: rgba(40, 55, 75, 0.6);
+        }
+
+        @keyframes cardGlow {
+            0% { box-shadow: 0 12px 30px -10px rgba(0,40,60,0.7); }
+            100% { box-shadow: 0 18px 40px -5px rgba(70, 180, 230, 0.5); }
+        }
+
+        .nav-card i {
+            font-size: 4rem;
+            color: #9ac9ff;
+            filter: drop-shadow(0 0 15px #0099ff);
+        }
+        .nav-card h2 {
+            font-size: 2.2rem;
+            font-weight: 600;
+            background: linear-gradient(130deg, #ffffff, #c7e9ff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .nav-card p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            color: #d0ecff;
+        }
+
+        /* 底部 */
+        .footnote {
+            margin-top: 3rem;
+            font-size: 0.95rem;
+            opacity: 0.7;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 1.5rem;
+        }
+        .footnote span {
+            font-size: 0.8rem;
+            opacity: 0.6;
+            display: block;
+            margin-top: 0.3rem;
+        }
+
+        /* 手机优化 */
+        @media (max-width: 700px) {
+            .glass-panel { padding: 1.5rem; border-radius: 2rem; }
+            .hero h1 { font-size: 2.5rem; }
+            .nav-card { padding: 1.8rem; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 烟花canvas (透明、无交互) -->
+    <canvas id="fireworks-canvas"></canvas>
+
+    <div class="glass-panel">
+        <!-- 头部 -->
+        <div class="hero">
+            <i class="fas fa-square-root-alt"></i>
+            <h1>数学秘境</h1>
+            <p>探索二次根式与勾股定理的动画证明世界</p>
+        </div>
+
+        <!-- 导航卡片网格 -->
+        <div class="grid">
+            <!-- 二次根式卡片 -->
+            <a href="twicegen.html" class="nav-card" target="_self">
+                <i class="fas fa-square-root-alt"></i>
+                <h2>二次根式</h2>
+                <p>定义 · 性质 · 化简 · 随机练习</p>
+            </a>
+
+            <!-- 勾股定理卡片 -->
+            <a href="gougu.html" class="nav-card" target="_self">
+                <i class="fas fa-shapes"></i>
+                <h2>勾股定理</h2>
+                <p>15种证明 · 三边可调 · 动画讲解</p>
+            </a>
+        </div>
+
+        <!-- 脚注声明 -->
+        <div class="footnote">
+            <i class="fas fa-feather"></i> 毛玻璃之下 · 数学之美<br>
+            <span>由 wlzp 工作室开发</span>
+        </div>
+    </div>
+
+    <script>
+        // ---------- 烟花特效 (同前) ----------
+        const canvas = document.getElementById('fireworks-canvas');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
+
+        function resizeCanvas() {
+            width = window.innerWidth;
+            height = window.innerHeight;
+            canvas.width = width;
+            canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+
+        function createFirework(x, y) {
+            const count = 12 + Math.floor(Math.random() * 10);
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * 2 * Math.PI;
+                const speed = 2 + Math.random() * 5;
+                const vx = Math.cos(angle) * speed * (0.5 + Math.random() * 0.8);
+                const vy = Math.sin(angle) * speed * (0.5 + Math.random() * 0.8);
+                const life = 0.8 + Math.random() * 0.8;
+                particles.push({
+                    x, y,
+                    vx, vy,
+                    size: 3 + Math.random() * 5,
+                    color: `hsl(${Math.random() * 60 + 200}, 80%, 70%)`, // 蓝白色系
+                    life: life,
+                    maxLife: life
+                });
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, width, height);
+            for (let i = particles.length - 1; i >= 0; i--) {
+                const p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.05; // 微弱重力
+                p.life -= 0.008;
+                if (p.life <= 0 || p.y > height + 50 || p.x < -50 || p.x > width + 50) {
+                    particles.splice(i, 1);
+                    continue;
+                }
+                ctx.globalAlpha = p.life * 0.8;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size * (p.life / p.maxLife) * 1.2, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.fill();
+            }
+            requestAnimationFrame(animateParticles);
+        }
+        animateParticles();
+
+        document.addEventListener('click', function(e) {
+            createFirework(e.clientX, e.clientY);
+        });
+    </script>
+</body>
+</html>
