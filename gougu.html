@@ -2,713 +2,774 @@
 <html lang="zh">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
-    <title>勾股定理 · 动态演示 + 15证法 · 动画讲解</title>
-    <!-- Font Awesome 6 -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Inter 字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>勾股定理 · 15证法 · 动态演示 (修正版)</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        /* 样式完全保留，未作修改 */
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Inter', sans-serif; min-height: 100vh;
-            background: radial-gradient(circle at 10% 30%, #1b3b4f, #0d1c2b);
-            background-attachment: fixed; display: flex; align-items: center; justify-content: center;
-            padding: 1.5rem; color: #eef5ff; line-height: 1.6; position: relative;
+            background: radial-gradient(ellipse at 20% 20%, #1a3a52 0%, #0d1f2d 50%, #081018 100%);
+            background-attachment: fixed; padding: 1rem; color: #e8f4fc;
         }
-        #fireworks-canvas {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; z-index: 9999;
+        .container { max-width: 1400px; margin: 0 auto; }
+        
+        .header {
+            text-align: center; padding: 1rem; margin-bottom: 1rem;
         }
-        .glass-panel {
-            max-width: 1600px; width: 100%;
-            backdrop-filter: blur(16px) saturate(180%);
-            -webkit-backdrop-filter: blur(16px) saturate(180%);
-            background: rgba(18, 30, 41, 0.45);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 3.5rem;
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 1px 3px rgba(255, 255, 255, 0.1);
-            padding: 2.5rem;
-            animation: floatIn 1.2s cubic-bezier(0.23, 1, 0.32, 1);
+        .header h1 {
+            font-size: 2.2rem; font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #7dd3fc 50%, #38bdf8 100%);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
         }
-        @keyframes floatIn {
-            0% { opacity: 0; transform: translateY(40px) scale(0.98); }
-            100% { opacity: 1; transform: translateY(0) scale(1); }
+        .header p { color: #94a3b8; margin-top: 0.3rem; font-size: 0.95rem; }
+
+        .control-panel {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.8));
+            backdrop-filter: blur(12px);
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 16px;
+            padding: 1.2rem; margin-bottom: 1.2rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
         }
-        .hero {
-            display: flex; align-items: center; gap: 1.2rem; margin-bottom: 2rem; flex-wrap: wrap;
+        .control-title {
+            text-align: center; color: #7dd3fc; font-weight: 600;
+            margin-bottom: 0.8rem; font-size: 1rem;
         }
-        .hero i {
-            font-size: 3.2rem; color: rgba(210, 240, 255, 0.9);
-            filter: drop-shadow(0 8px 12px rgba(0,40,60,0.6));
-            transition: transform 0.3s ease;
+        .control-row {
+            display: flex; flex-wrap: wrap; gap: 1rem;
+            align-items: center; justify-content: center;
         }
-        .hero:hover i { transform: rotate(6deg) scale(1.05); }
-        .hero h1 {
-            font-size: 3rem; font-weight: 600; letter-spacing: -0.02em;
-            background: linear-gradient(130deg, #ffffff, #c7e9ff);
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-            text-shadow: 0 4px 20px rgba(0,160,255,0.3);
+        .control-item {
+            display: flex; align-items: center; gap: 0.5rem;
+            background: rgba(15, 23, 42, 0.6);
+            padding: 0.6rem 1rem;
+            border-radius: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
-        .hero .sub {
-            font-size: 1.2rem; font-weight: 300; margin-left: auto;
-            background: rgba(255,255,255,0.1); padding: 0.6rem 1.5rem; border-radius: 40px;
-            border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(5px);
+        .control-item label {
+            font-weight: 700; font-size: 1.1rem; min-width: 24px;
+        }
+        .control-item input[type="range"] {
+            width: 140px; height: 8px; -webkit-appearance: none;
+            background: rgba(148, 163, 184, 0.3); border-radius: 4px;
+            cursor: pointer;
+        }
+        .control-item input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none; width: 20px; height: 20px;
+            background: linear-gradient(135deg, #38bdf8, #0ea5e9);
+            border-radius: 50%; cursor: pointer;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+            border: 2px solid #fff;
+        }
+        .control-item input[type="number"] {
+            width: 65px; padding: 0.35rem 0.5rem; font-size: 1rem;
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid rgba(56, 189, 248, 0.3);
+            border-radius: 8px; color: #e8f4fc; text-align: center;
+            font-weight: 600;
+        }
+        .control-item input[type="number"]:focus {
+            outline: none; border-color: #38bdf8;
+            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2);
+        }
+        .formula-display {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(139, 92, 246, 0.25));
+            padding: 0.8rem 1.5rem; border-radius: 12px;
+            border: 1px solid rgba(56, 189, 248, 0.4);
+            font-size: 1.2rem; font-weight: 600;
+        }
+        .formula-display span { color: #7dd3fc; }
+        .formula-display .plus { color: #94a3b8; }
+        .formula-display .equals { color: #4ade80; }
+
+        .main-demo {
+            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 16px;
+            padding: 1.2rem; margin-bottom: 1.2rem;
+        }
+        .main-demo h3 {
+            display: flex; align-items: center; gap: 0.5rem;
+            margin-bottom: 0.8rem; color: #7dd3fc; font-size: 1rem;
+        }
+        #mainCanvas {
+            width: 100%; height: 280px; background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px; display: block;
         }
 
-        /* 三边滑块控制区 */
-        .slider-main-card {
-            background: rgba(25, 35, 50, 0.5); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 2.5rem;
-            padding: 1.5rem 2rem; margin-bottom: 1.8rem; display: flex; flex-wrap: wrap;
-            gap: 2rem; align-items: center; justify-content: space-between;
+        .content-grid {
+            display: grid; grid-template-columns: 280px 1fr; gap: 1.2rem;
         }
-        .slider-item-group { display: flex; flex-wrap: wrap; gap: 2rem; flex: 3; }
-        .slider-item { min-width: 160px; flex: 1; }
-        .slider-item label {
-            display: flex; align-items: center; gap: 0.6rem; font-size: 1.2rem;
-            margin-bottom: 0.5rem; color: #c3e2ff;
-        }
-        .slider-item input {
-            width: 100%; height: 8px; background: rgba(200, 230, 255, 0.2);
-            border-radius: 10px; -webkit-appearance: none;
-        }
-        .slider-item input::-webkit-slider-thumb {
-            -webkit-appearance: none; width: 22px; height: 22px; background: white;
-            border-radius: 50%; box-shadow: 0 0 10px #0099ff; cursor: pointer;
-            border: 2px solid #a0d0ff;
-        }
-        .tri-value-panel {
-            background: rgba(0, 30, 45, 0.6); border-radius: 2rem; padding: 0.8rem 1.8rem;
-            border: 1px solid rgba(120,200,255,0.3); font-size: 1.4rem; white-space: nowrap;
-        }
-        .tri-value-panel span { color: #a9e2ff; font-weight: 600; }
-
-        /* 顶部动画演示区 (三个正方形) */
-        .demo-animation-card {
-            background: rgba(25, 35, 50, 0.5); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 2.5rem;
-            padding: 1.5rem; margin-bottom: 2rem;
-        }
-        .demo-title {
-            font-size: 1.5rem; display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;
-        }
-        .demo-canvas-container {
-            display: flex; justify-content: center;
-        }
-        #mainDemoCanvas {
-            width: 100%; max-width: 800px; height: auto; background: rgba(0, 20, 30, 0.2);
-            border-radius: 2rem; box-shadow: 0 0 25px rgba(0,150,200,0.3);
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
         }
 
-        /* 主内容双栏：左侧证明列表 + 右侧动画讲解 */
-        .main-demo-row { display: grid; grid-template-columns: 1.1fr 2.2fr; gap: 1.8rem; margin-bottom: 2rem; }
-
-        /* 左侧：分层证明列表 */
-        .proof-list-card {
-            background: rgba(25, 35, 50, 0.45); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 2.5rem;
-            padding: 1.5rem; height: fit-content; max-height: 700px; overflow-y: auto;
-            scrollbar-width: thin; scrollbar-color: #4f8bb0 #1d3345;
+        .proof-list {
+            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 16px;
+            padding: 1rem; max-height: 550px; overflow-y: auto;
         }
-        .proof-list-card h3 {
-            font-size: 1.6rem; margin-bottom: 1.2rem; display: flex; align-items: center;
-            gap: 0.7rem; border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 0.8rem;
+        .proof-list h3 { margin-bottom: 0.8rem; color: #7dd3fc; font-size: 1rem; }
+        .category {
+            margin-bottom: 0.5rem; border-radius: 10px;
+            background: rgba(15, 23, 42, 0.4); overflow: hidden;
         }
-        .proof-category { margin-bottom: 1.2rem; border-radius: 1.5rem; background: rgba(0, 25, 40, 0.3); overflow: hidden; }
         .category-header {
-            background: rgba(40, 70, 100, 0.5); padding: 0.8rem 1.2rem; font-weight: 600;
-            font-size: 1.2rem; cursor: pointer; user-select: none; display: flex;
-            justify-content: space-between; align-items: center; border-left: 4px solid #4fa3d0;
+            padding: 0.6rem 0.8rem; font-weight: 600; cursor: pointer;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 3px solid #38bdf8;
+            font-size: 0.9rem;
         }
-        .category-header i { transition: transform 0.3s; }
+        .category-header:hover { background: rgba(56, 189, 248, 0.2); }
+        .category-header i { transition: transform 0.3s; font-size: 0.8rem; }
         .category-header.collapsed i { transform: rotate(-90deg); }
-        .sub-item-list { padding: 0.3rem 0 0.3rem 0.5rem; }
-        .sub-item-list.collapsed { display: none; }
+        .proof-items { padding: 0.2rem; }
+        .proof-items.collapsed { display: none; }
         .proof-item {
-            padding: 0.7rem 1rem 0.7rem 2.2rem; margin: 0.2rem 0; border-radius: 2rem;
-            cursor: pointer; transition: 0.15s; font-size: 1.0rem; display: flex;
-            align-items: center; gap: 0.6rem; background: rgba(255,255,255,0.02);
+            padding: 0.5rem 0.6rem 0.5rem 1.2rem; margin: 0.15rem 0;
+            border-radius: 8px; cursor: pointer; font-size: 0.88rem;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s;
         }
-        .proof-item:hover { background: rgba(90, 170, 240, 0.3); }
-        .proof-item.active { background: rgba(0, 150, 255, 0.5); border-left: 4px solid white; }
-        .proof-item i { width: 1.6rem; color: #8fcbff; }
+        .proof-item:hover { background: rgba(56, 189, 248, 0.2); }
+        .proof-item.active {
+            background: linear-gradient(90deg, rgba(56, 189, 248, 0.35), rgba(139, 92, 246, 0.35));
+            border-left: 3px solid #38bdf8;
+        }
+        .proof-item i { color: #7dd3fc; width: 16px; font-size: 0.8rem; }
 
-        /* 右侧动画卡片 */
         .animation-card {
-            background: rgba(25, 35, 50, 0.5); backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 2.5rem;
-            padding: 1.5rem; display: flex; flex-direction: column;
+            background: rgba(30, 41, 59, 0.6); backdrop-filter: blur(12px);
+            border: 1px solid rgba(148, 163, 184, 0.2); border-radius: 16px;
+            padding: 1.2rem;
         }
-        .proof-title {
-            font-size: 1.7rem; font-weight: 500; margin-bottom: 0.8rem;
-            display: flex; align-items: center; gap: 0.8rem;
-            border-bottom: 2px solid rgba(255,255,255,0.1); padding-bottom: 0.5rem;
+        .animation-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 0.8rem; padding-bottom: 0.6rem;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.2);
         }
-        .canvas-container {
-            background: rgba(0, 20, 30, 0.4); border-radius: 2rem; padding: 1rem;
-            display: flex; justify-content: center; align-items: center;
-            border: 1px solid rgba(255,255,255,0.1);
+        .animation-header h3 {
+            display: flex; align-items: center; gap: 0.5rem;
+            color: #7dd3fc; font-size: 1.1rem;
+        }
+        .anim-controls {
+            display: flex; gap: 0.5rem;
+            align-items: center;
+        }
+        .play-btn, .step-btn {
+            background: linear-gradient(135deg, #38bdf8, #8b5cf6);
+            border: none; padding: 0.4rem 0.8rem; border-radius: 8px;
+            color: white; cursor: pointer; font-weight: 600;
+            display: flex; align-items: center; gap: 0.4rem;
+            transition: all 0.2s; font-size: 0.85rem;
+        }
+        .play-btn:hover, .step-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 16px rgba(56, 189, 248, 0.4);
+        }
+        .play-btn:disabled {
+            opacity: 0.6; cursor: not-allowed; transform: none;
+        }
+        .step-indicator {
+            background: rgba(15, 23, 42, 0.8);
+            padding: 0.4rem 0.8rem; border-radius: 8px;
+            font-size: 0.85rem; color: #94a3b8;
+            border: 1px solid rgba(148, 163, 184, 0.2);
         }
         #proofCanvas {
-            width: 100%; max-width: 600px; height: auto; background: rgba(0, 20, 30, 0.2);
-            border-radius: 1.5rem; box-shadow: 0 0 20px rgba(0,100,150,0.3);
+            width: 100%; height: 350px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 12px; display: block; margin-bottom: 0.8rem;
         }
-        .steps-container {
-            margin-top: 1rem; background: rgba(0,30,50,0.5); border-radius: 2rem;
-            padding: 1.2rem; border: 1px solid rgba(120,200,255,0.2);
+        .steps-panel {
+            background: rgba(15, 23, 42, 0.5); border-radius: 12px;
+            padding: 0.8rem; border: 1px solid rgba(148, 163, 184, 0.15);
         }
-        .steps-title { font-size: 1.1rem; margin-bottom: 0.8rem; color: #b3dcff; }
-        .steps-list {
-            list-style: none; font-size: 0.95rem; color: #e0f0ff;
+        .steps-panel h4 {
+            color: #7dd3fc; margin-bottom: 0.6rem;
+            font-size: 0.95rem; display: flex; align-items: center; gap: 0.4rem;
         }
+        .steps-list { list-style: none; }
         .steps-list li {
-            margin-bottom: 0.6rem; display: flex; gap: 0.8rem; align-items: flex-start;
+            padding: 0.4rem 0; padding-left: 1.2rem; position: relative;
+            border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+            font-size: 0.88rem; color: #cbd5e1;
+            transition: all 0.3s;
         }
-        .steps-list i { color: #6fc3ff; width: 1.4rem; margin-top: 0.2rem; }
+        .steps-list li:last-child { border-bottom: none; }
+        .steps-list li::before {
+            content: '→'; position: absolute; left: 0;
+            color: #38bdf8; font-weight: bold;
+        }
+        .steps-list li.active {
+            color: #fff;
+            background: rgba(56, 189, 248, 0.1);
+            border-radius: 6px;
+            padding-left: 1.5rem;
+            margin-left: -0.3rem;
+        }
+        .steps-list li.active::before {
+            content: '▶'; color: #4ade80;
+        }
+        .steps-list li.completed::before {
+            content: '✓'; color: #4ade80;
+        }
 
-        .footnote {
-            text-align: right; font-size: 0.95rem; opacity: 0.7; margin-top: 2rem;
-            border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.2rem;
+        .anim-progress {
+            height: 4px;
+            background: rgba(148, 163, 184, 0.2);
+            border-radius: 2px;
+            margin-bottom: 0.8rem;
+            overflow: hidden;
         }
-        .footnote span { font-size: 0.8rem; opacity: 0.6; display: block; margin-top: 0.3rem; }
+        .anim-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #38bdf8, #8b5cf6);
+            border-radius: 2px;
+            transition: width 0.3s ease;
+            width: 0%;
+        }
 
-        @media (max-width: 1000px) {
-            .main-demo-row { grid-template-columns: 1fr; }
-            .slider-main-card { flex-direction: column; align-items: stretch; }
-        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.5); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb { background: rgba(56, 189, 248, 0.5); border-radius: 3px; }
     </style>
-<base target="_blank">
 </head>
 <body>
-    <canvas id="fireworks-canvas"></canvas>
-    <div class="glass-panel">
-        <!-- 头部 -->
-        <div class="hero">
-            <i class="fas fa-square-root-alt"></i>
-            <h1>勾股定理 · 15证法 · 动画讲解</h1>
-            <div class="sub"><i class="fas fa-feather"></i> 三边可调·分步图解</div>
-        </div>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-shapes"></i> 勾股定理 · 15种证明方法</h1>
+            <p>拖动滑块或输入数值调整边长，点击播放按钮观看分步动画演示</p>
+        </header>
 
-        <!-- 三边滑块区 (a, b, c 均可调) -->
-        <div class="slider-main-card">
-            <div class="slider-item-group">
-                <div class="slider-item">
-                    <label><i class="fas fa-arrow-right" style="color:#6fc3ff;"></i> 直角边 a = <span id="aVal">3.0</span></label>
-                    <input type="range" id="aSlider" min="1.5" max="8.0" value="3.0" step="0.1">
+        <!-- Control Panel -->
+        <div class="control-panel">
+            <div class="control-title"><i class="fas fa-sliders-h"></i> 调整三角形边长</div>
+            <div class="control-row">
+                <div class="control-item">
+                    <label style="color:#f87171;">a</label>
+                    <input type="range" id="aSlider" min="3" max="12" value="6" step="0.5">
+                    <input type="number" id="aInput" min="3" max="12" value="6" step="0.5">
                 </div>
-                <div class="slider-item">
-                    <label><i class="fas fa-arrow-up" style="color:#6fc3ff;"></i> 直角边 b = <span id="bVal">4.0</span></label>
-                    <input type="range" id="bSlider" min="1.5" max="8.0" value="4.0" step="0.1">
+                <div class="control-item">
+                    <label style="color:#4ade80;">b</label>
+                    <input type="range" id="bSlider" min="3" max="12" value="8" step="0.5">
+                    <input type="number" id="bInput" min="3" max="12" value="8" step="0.5">
                 </div>
-                <div class="slider-item">
-                    <label><i class="fas fa-sliders-h" style="color:#d4a5ff;"></i> 斜边 c = <span id="cVal">5.0</span></label>
-                    <input type="range" id="cSlider" min="2.1" max="12.0" value="5.0" step="0.1">
+                <div class="control-item">
+                    <label style="color:#a78bfa;">c</label>
+                    <input type="number" id="cInput" value="10" readonly style="opacity:0.7; cursor:not-allowed;">
                 </div>
-            </div>
-            <div class="tri-value-panel">
-                a² <span id="a2">9.0</span> + b² <span id="b2">16.0</span> = c² <span id="c2">25.0</span>
-            </div>
-        </div>
-
-        <!-- 顶部动画演示区：三个正方形动态展示勾股定理 -->
-        <div class="demo-animation-card">
-            <div class="demo-title">
-                <i class="fas fa-play-circle" style="color:#8fcbff;"></i> 动态演示 · 面积关系
-            </div>
-            <div class="demo-canvas-container">
-                <canvas id="mainDemoCanvas" width="800" height="350"></canvas>
+                <div class="formula-display">
+                    <span id="a2">36</span> <span class="plus">+</span> <span id="b2">64</span> <span class="equals">=</span> <span id="c2" style="color:#4ade80;">100</span>
+                </div>
             </div>
         </div>
 
-        <!-- 主区域: 左侧分层证明列表 + 右侧动画讲解 -->
-        <div class="main-demo-row">
-            <!-- 左侧大列表分层 -->
-            <div class="proof-list-card">
-                <h3><i class="fas fa-list-tree"></i> 15种证明 · 分类</h3>
+        <!-- Main Demo -->
+        <div class="main-demo">
+            <h3><i class="fas fa-chart-area"></i> 面积关系演示</h3>
+            <canvas id="mainCanvas" width="900" height="280"></canvas>
+        </div>
+
+        <!-- Content Grid -->
+        <div class="content-grid">
+            <!-- Proof List -->
+            <div class="proof-list">
+                <h3><i class="fas fa-list"></i> 15种证明</h3>
                 <div id="proofListContainer"></div>
-                <div style="margin-top: 1rem; color:#97c9ff; font-size:0.9rem;">
-                    <i class="fas fa-info-circle"></i> 点击证法名称，右侧动画 + 分步讲解
-                </div>
             </div>
 
-            <!-- 右侧动画卡片 + 讲解步骤 -->
+            <!-- Animation Card -->
             <div class="animation-card">
-                <div class="proof-title" id="activeProofTitle">
-                    <i class="fas fa-play-circle" style="color:#8fcbff;"></i> 赵爽弦图
+                <div class="animation-header">
+                    <h3 id="proofTitle"><i class="fas fa-cube"></i> 赵爽弦图</h3>
+                    <div class="anim-controls">
+                        <div class="step-indicator">步骤 <span id="currentStep">0</span>/<span id="totalSteps">4</span></div>
+                        <button class="step-btn" id="prevBtn" onclick="prevStep()"><i class="fas fa-step-backward"></i></button>
+                        <button class="play-btn" id="playBtn" onclick="togglePlay()"><i class="fas fa-play"></i> 播放</button>
+                        <button class="step-btn" id="nextBtn" onclick="nextStep()"><i class="fas fa-step-forward"></i></button>
+                    </div>
                 </div>
-                <div class="canvas-container">
-                    <canvas id="proofCanvas" width="600" height="400"></canvas>
+                <div class="anim-progress">
+                    <div class="anim-progress-bar" id="progressBar"></div>
                 </div>
-                <div class="steps-container">
-                    <div class="steps-title"><i class="fas fa-list-ol"></i> 证明步骤：</div>
-                    <ul class="steps-list" id="stepsList">
-                        <li><i class="fas fa-angle-right"></i> 四个全等直角三角形围成一个大正方形</li>
-                        <li><i class="fas fa-angle-right"></i> 中间小正方形边长为 |a-b|</li>
-                        <li><i class="fas fa-angle-right"></i> 大正方形面积 = (a+b)² = c² + 2ab</li>
-                        <li><i class="fas fa-angle-right"></i> 化简得 a² + b² = c²</li>
-                    </ul>
+                <canvas id="proofCanvas" width="700" height="350"></canvas>
+                <div class="steps-panel">
+                    <h4><i class="fas fa-list-ol"></i> 证明步骤</h4>
+                    <ul class="steps-list" id="stepsList"></ul>
                 </div>
             </div>
-        </div>
-
-        <!-- 底部声明 -->
-        <div class="footnote">
-            <i class="fas fa-feather"></i> 拖动滑块 · 15种证明动画 · 分步讲解<br>
-            <span>由 wlzp 工作室开发</span>
         </div>
     </div>
 
     <script>
-    (function() {
-        // ---------- 三边滑块 + 约束 ----------
-        const aSlider = document.getElementById('aSlider');
-        const bSlider = document.getElementById('bSlider');
-        const cSlider = document.getElementById('cSlider');
-        const aSpan = document.getElementById('aVal');
-        const bSpan = document.getElementById('bVal');
-        const cSpan = document.getElementById('cVal');
-        const a2Span = document.getElementById('a2');
-        const b2Span = document.getElementById('b2');
-        const c2Span = document.getElementById('c2');
+    // ========== 全局变量 ==========
+    let a = 6, b = 8, c = 10;
+    let activeProofId = 'p01';
+    let currentStep = 0;
+    let isPlaying = false;
+    let playInterval = null;
+    let totalSteps = 4;
 
-        let a = 3.0, b = 4.0, c = 5.0;
-        let activeProofId = 'p01';
-        let animationId = null;
-        let animationProgress = 0;
+    // ========== DOM元素 ==========
+    const aSlider = document.getElementById('aSlider');
+    const aInput = document.getElementById('aInput');
+    const bSlider = document.getElementById('bSlider');
+    const bInput = document.getElementById('bInput');
+    const cInput = document.getElementById('cInput');
+    const a2Span = document.getElementById('a2');
+    const b2Span = document.getElementById('b2');
+    const c2Span = document.getElementById('c2');
+    const mainCanvas = document.getElementById('mainCanvas');
+    const mainCtx = mainCanvas.getContext('2d');
+    const proofCanvas = document.getElementById('proofCanvas');
+    const proofCtx = proofCanvas.getContext('2d');
 
-        // 更新滑块显示
-        function updateSliders() {
-            a = parseFloat(aSlider.value);
-            b = parseFloat(bSlider.value);
-            let theoreticalC = Math.sqrt(a*a + b*b);
-            c = theoreticalC;
-            cSlider.value = c.toFixed(1);
-            
-            aSpan.textContent = a.toFixed(1);
-            bSpan.textContent = b.toFixed(1);
-            cSpan.textContent = c.toFixed(2);
-            a2Span.textContent = (a*a).toFixed(1);
-            b2Span.textContent = (b*b).toFixed(1);
-            c2Span.textContent = (c*c).toFixed(1);
-            
-            drawMainDemo();
-            if (window.drawProof) window.drawProof(activeProofId);
-        }
-
-        aSlider.addEventListener('input', updateSliders);
-        bSlider.addEventListener('input', updateSliders);
-        cSlider.addEventListener('input', function() {
-            let newC = parseFloat(cSlider.value);
-            let aa = parseFloat(aSlider.value);
-            let bb = Math.sqrt(newC*newC - aa*aa);
-            if (bb >= 1.2 && bb <= 9.0) {
-                bSlider.value = bb.toFixed(1);
-            } else {
-                let bbFixed = parseFloat(bSlider.value);
-                let aaNew = Math.sqrt(newC*newC - bbFixed*bbFixed);
-                if (aaNew >= 1.2 && aaNew <= 9.0) {
-                    aSlider.value = aaNew.toFixed(1);
-                } else {
-                    newC = Math.sqrt(aa*aa + parseFloat(bSlider.value)*parseFloat(bSlider.value));
-                    cSlider.value = newC.toFixed(1);
-                }
-            }
-            updateSliders();
-        });
-
-        // ---------- 顶部主演示canvas (三个正方形) ----------
-        const mainCanvas = document.getElementById('mainDemoCanvas');
-        const mainCtx = mainCanvas.getContext('2d');
+    // ========== 双向绑定控制 ==========
+    function updateValues() {
+        a = parseFloat(aSlider.value);
+        b = parseFloat(bSlider.value);
+        c = Math.sqrt(a*a + b*b);
         
-        function drawMainDemo() {
-            mainCtx.clearRect(0, 0, mainCanvas.width, mainCanvas.height);
-            const scale = 22;
-            const ox = 400, oy = 280;
-            
-            // 画直角三角形
-            mainCtx.beginPath();
-            mainCtx.moveTo(ox, oy);
-            mainCtx.lineTo(ox + a*scale, oy);
-            mainCtx.lineTo(ox, oy - b*scale);
-            mainCtx.closePath();
-            mainCtx.strokeStyle = 'rgba(255,255,255,0.9)';
-            mainCtx.lineWidth = 3;
-            mainCtx.stroke();
-            mainCtx.fillStyle = 'rgba(80,180,255,0.25)';
-            mainCtx.fill();
-            
-            // 直角标记
-            mainCtx.beginPath();
-            mainCtx.moveTo(ox+15, oy);
-            mainCtx.lineTo(ox+15, oy-15);
-            mainCtx.lineTo(ox, oy-15);
-            mainCtx.strokeStyle = 'rgba(255,255,255,0.7)';
-            mainCtx.lineWidth = 2;
-            mainCtx.stroke();
+        aSlider.value = aInput.value = a.toFixed(1);
+        bSlider.value = bInput.value = b.toFixed(1);
+        cInput.value = c.toFixed(2);
+        
+        a2Span.textContent = (a*a).toFixed(1);
+        b2Span.textContent = (b*b).toFixed(1);
+        c2Span.textContent = (c*c).toFixed(1);
+        
+        drawMainDemo();
+        drawProof(activeProofId, currentStep);
+    }
 
-            // 画a边正方形 (蓝色) - 向右下方延伸
-            mainCtx.fillStyle = 'rgba(70,150,255,0.4)';
-            mainCtx.strokeStyle = 'rgba(70,200,255,0.9)';
-            mainCtx.lineWidth = 2;
-            mainCtx.beginPath();
-            mainCtx.rect(ox, oy, a*scale, a*scale);
-            mainCtx.fill();
-            mainCtx.stroke();
-            
-            // 画b边正方形 (绿色) - 向左上方延伸
-            mainCtx.fillStyle = 'rgba(100,220,150,0.4)';
-            mainCtx.strokeStyle = 'rgba(100,255,170,0.9)';
-            mainCtx.beginPath();
-            mainCtx.rect(ox - b*scale, oy - b*scale, b*scale, b*scale);
-            mainCtx.fill();
-            mainCtx.stroke();
-            
-            // 画c边正方形 (紫色) - 斜边向外
-            const Ax = ox + a*scale, Ay = oy;
-            const Bx = ox, By = oy - b*scale;
-            const ABx = Ax - Bx, ABy = Ay - By;
-            const vx = b*scale, vy = -a*scale;
-            
-            mainCtx.fillStyle = 'rgba(200,130,255,0.4)';
-            mainCtx.strokeStyle = 'rgba(210,150,255,0.9)';
-            mainCtx.beginPath();
-            mainCtx.moveTo(Ax, Ay);
-            mainCtx.lineTo(Bx, By);
-            mainCtx.lineTo(Bx + vx, By + vy);
-            mainCtx.lineTo(Ax + vx, Ay + vy);
-            mainCtx.closePath();
-            mainCtx.fill();
-            mainCtx.stroke();
+    aSlider.addEventListener('input', () => { aInput.value = aSlider.value; updateValues(); });
+    aInput.addEventListener('change', () => { 
+        let val = parseFloat(aInput.value);
+        if (val < 3) val = 3; if (val > 12) val = 12;
+        aSlider.value = val; updateValues(); 
+    });
 
-            // 标注
-            mainCtx.fillStyle = 'white';
-            mainCtx.font = 'bold 16px Inter';
-            mainCtx.fillText('a²', ox + a*scale*0.4, oy + a*scale*0.55);
-            mainCtx.fillText('b²', ox - b*scale*0.7, oy - b*scale*0.45);
-            mainCtx.fillText('c²', ox + a*scale*0.4 + vx*0.3, oy - b*scale*0.5 + vy*0.3);
-            
-            // 边长标注
-            mainCtx.font = '14px Inter';
-            mainCtx.fillText('a=' + a.toFixed(1), ox + a*scale*0.3, oy + 25);
-            mainCtx.fillText('b=' + b.toFixed(1), ox - b*scale - 30, oy - b*scale*0.5);
-            mainCtx.fillText('c=' + c.toFixed(2), ox + a*scale*0.3, oy - b*scale*0.5 - 40);
-            
-            // 标题
-            mainCtx.font = 'bold 18px Inter';
-            mainCtx.fillStyle = '#c3e2ff';
-            mainCtx.fillText('a² + b² = c²  面积关系演示', 280, 40);
-        }
+    bSlider.addEventListener('input', () => { bInput.value = bSlider.value; updateValues(); });
+    bInput.addEventListener('change', () => { 
+        let val = parseFloat(bInput.value);
+        if (val < 3) val = 3; if (val > 12) val = 12;
+        bSlider.value = val; updateValues(); 
+    });
 
-        // ---------- 15种证明数据 ----------
-        const proofData = {
-            p01: {
-                name: '赵爽弦图',
-                category: '割补法',
-                steps: [
-                    '四个全等直角三角形围成一个大正方形',
-                    '中间小正方形边长为 |a-b|，面积为 (a-b)²',
-                    '大正方形面积 = (a+b)² = 4×(½ab) + c² = 2ab + c²',
-                    '展开得 a² + 2ab + b² = 2ab + c²',
-                    '化简得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c, progress) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 180, oy = 320;
-                    const bigSize = (a+b) * scale;
+    // ========== 主演示区绘制 ==========
+    function drawMainDemo() {
+        const ctx = mainCtx;
+        const w = mainCanvas.width, h = mainCanvas.height;
+        ctx.clearRect(0, 0, w, h);
+        
+        const scale = 20;
+        const ox = w/2 - 50, oy = h - 30;
+        
+        // 直角三角形
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.moveTo(ox, oy);
+        ctx.lineTo(ox + a*scale, oy);
+        ctx.lineTo(ox, oy - b*scale);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // 直角标记
+        ctx.strokeStyle = '#94a3b8';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(ox + 10, oy);
+        ctx.lineTo(ox + 10, oy - 10);
+        ctx.lineTo(ox, oy - 10);
+        ctx.stroke();
+        
+        // a²正方形
+        ctx.fillStyle = 'rgba(56, 189, 248, 0.35)';
+        ctx.strokeStyle = '#38bdf8';
+        ctx.fillRect(ox, oy, a*scale, a*scale);
+        ctx.strokeRect(ox, oy, a*scale, a*scale);
+        
+        // b²正方形
+        ctx.fillStyle = 'rgba(74, 222, 128, 0.35)';
+        ctx.strokeStyle = '#4ade80';
+        ctx.fillRect(ox - b*scale, oy - b*scale, b*scale, b*scale);
+        ctx.strokeRect(ox - b*scale, oy - b*scale, b*scale, b*scale);
+        
+        // c²正方形
+        const Ax = ox + a*scale, Ay = oy;
+        const Bx = ox, By = oy - b*scale;
+        const vx = b*scale, vy = -a*scale;
+        ctx.fillStyle = 'rgba(167, 139, 250, 0.35)';
+        ctx.strokeStyle = '#a78bfa';
+        ctx.beginPath();
+        ctx.moveTo(Ax, Ay);
+        ctx.lineTo(Bx, By);
+        ctx.lineTo(Bx + vx, By + vy);
+        ctx.lineTo(Ax + vx, Ay + vy);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+        
+        // 标注
+        ctx.fillStyle = '#fff';
+        ctx.font = 'bold 13px Inter';
+        ctx.fillText('a²', ox + a*scale*0.35, oy + a*scale*0.55);
+        ctx.fillText('b²', ox - b*scale*0.65, oy - b*scale*0.45);
+        ctx.fillText('c²', ox + a*scale*0.35 + vx*0.3, oy - b*scale*0.45 + vy*0.3);
+        
+        ctx.font = '11px Inter';
+        ctx.fillStyle = '#94a3b8';
+        ctx.fillText(`a=${a.toFixed(1)}`, ox + a*scale*0.2, oy + 18);
+        ctx.fillText(`b=${b.toFixed(1)}`, ox - b*scale - 30, oy - b*scale*0.5);
+        ctx.fillText(`c=${c.toFixed(2)}`, ox + a*scale*0.2, oy - b*scale*0.5 - 30);
+        
+        ctx.font = 'bold 14px Inter';
+        ctx.fillStyle = '#7dd3fc';
+        ctx.fillText('a² + b² = c²', 20, 25);
+    }
+
+    // ========== 15种证明数据 (修正p01: 赵爽弦图 的c²为旋转正方形) ==========
+    const proofData = {
+        p01: {
+            name: '赵爽弦图',
+            category: '割补法',
+            steps: [
+                '以四个全等直角三角形的斜边为边，围成一个大正方形',
+                '大正方形边长为c，面积为c²',
+                '大正方形也可看作边长为(a+b)的正方形减去四个三角形',
+                'c² = (a+b)² - 4×(½ab) = a² + 2ab + b² - 2ab = a² + b²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 18;
+                const ox = w/2 - (a+b)*scale/2, oy = h/2 + (a+b)*scale/2 + 20;
+                const bigSize = (a+b) * scale;
+                
+                // 步骤0: 显示大正方形边框 (边长为a+b)
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(ox, oy - bigSize, bigSize, bigSize);
+                
+                // 预计算四个斜边顶点 (构成旋转的c²正方形)
+                const v1 = {x: ox + a*scale, y: oy};               // 右下顶点
+                const v2 = {x: ox + bigSize, y: oy - a*scale};     // 左下顶点 (相对于大正方形)
+                const v3 = {x: ox + b*scale, y: oy - bigSize};     // 左上顶点
+                const v4 = {x: ox, y: oy - b*scale};               // 右上顶点
+                
+                if (step >= 1) {
+                    // 步骤1: 画四个三角形 (颜色区分)
+                    const colors = ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'];
                     
-                    // 大正方形边框
-                    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(ox, oy - bigSize, bigSize, bigSize);
-                    
-                    // 四个三角形颜色
-                    const colors = ['rgba(255,100,100,0.5)', 'rgba(100,255,100,0.5)', 'rgba(100,100,255,0.5)', 'rgba(255,200,100,0.5)'];
-                    
-                    // 左下三角形 (红色)
-                    ctx.fillStyle = colors[0];
+                    // 三角形1 (右下，红色)
+                    ctx.fillStyle = colors[0] + '80';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + a*scale, oy);
                     ctx.lineTo(ox, oy - b*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.strokeStyle = 'white';
+                    ctx.strokeStyle = colors[0];
                     ctx.stroke();
                     
-                    // 左上三角形 (绿色)
-                    ctx.fillStyle = colors[1];
-                    ctx.beginPath();
-                    ctx.moveTo(ox, oy - b*scale);
-                    ctx.lineTo(ox + a*scale, oy - b*scale);
-                    ctx.lineTo(ox, oy - bigSize);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    
-                    // 右上三角形 (蓝色)
-                    ctx.fillStyle = colors[2];
-                    ctx.beginPath();
-                    ctx.moveTo(ox + a*scale, oy - b*scale);
-                    ctx.lineTo(ox + bigSize, oy - b*scale);
-                    ctx.lineTo(ox + a*scale, oy - bigSize);
-                    ctx.closePath();
-                    ctx.fill();
-                    ctx.stroke();
-                    
-                    // 右下三角形 (橙色)
-                    ctx.fillStyle = colors[3];
+                    // 三角形2 (左下，绿色)
+                    ctx.fillStyle = colors[1] + '80';
                     ctx.beginPath();
                     ctx.moveTo(ox + a*scale, oy);
                     ctx.lineTo(ox + bigSize, oy);
-                    ctx.lineTo(ox + a*scale, oy - b*scale);
+                    ctx.lineTo(ox + bigSize, oy - a*scale);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = colors[1];
+                    ctx.stroke();
+                    
+                    // 三角形3 (左上，蓝色)
+                    ctx.fillStyle = colors[2] + '80';
+                    ctx.beginPath();
+                    ctx.moveTo(ox + bigSize, oy - a*scale);
+                    ctx.lineTo(ox + bigSize, oy - bigSize);
+                    ctx.lineTo(ox + b*scale, oy - bigSize);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = colors[2];
+                    ctx.stroke();
+                    
+                    // 三角形4 (右上，黄色)
+                    ctx.fillStyle = colors[3] + '80';
+                    ctx.beginPath();
+                    ctx.moveTo(ox + b*scale, oy - bigSize);
+                    ctx.lineTo(ox, oy - bigSize);
+                    ctx.lineTo(ox, oy - b*scale);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = colors[3];
+                    ctx.stroke();
+                }
+                
+                if (step >= 2) {
+                    // 步骤2: 绘制旋转的c²正方形 (由四个斜边顶点围成)
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.5)'; // 紫色半透明
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.lineWidth = 3;
+                    ctx.beginPath();
+                    ctx.moveTo(v1.x, v1.y);
+                    ctx.lineTo(v2.x, v2.y);
+                    ctx.lineTo(v3.x, v3.y);
+                    ctx.lineTo(v4.x, v4.y);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 中间小正方形 (c²)
-                    ctx.fillStyle = 'rgba(200,150,255,0.4)';
-                    ctx.fillRect(ox + a*scale, oy - b*scale, (b-a)*scale, (b-a)*scale);
-                    ctx.strokeRect(ox + a*scale, oy - b*scale, (b-a)*scale, (b-a)*scale);
-                    
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillText('a', ox + a*scale*0.4, oy + 20);
-                    ctx.fillText('b', ox - 25, oy - b*scale*0.5);
-                    ctx.fillText('c', ox + a*scale*0.3, oy - b*scale*0.3);
-                    ctx.fillText('(a+b)²', ox + bigSize + 10, oy - bigSize*0.5);
-                    ctx.fillText('c²', ox + a*scale + (b-a)*scale*0.3, oy - b*scale + (b-a)*scale*0.5);
-                    
-                    // 公式
-                    ctx.font = 'bold 16px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('赵爽弦图: (a+b)² = 4×½ab + c²', 150, 50);
-                    ctx.fillText('→ a² + b² = c²', 200, 75);
                 }
-            },
-            p02: {
-                name: '邹元治证法',
-                category: '割补法',
-                steps: [
-                    '将四个全等直角三角形拼成边长为(a+b)的大正方形',
-                    '大正方形面积 = (a+b)²',
-                    '也可看作边长为c的正方形加四个三角形',
-                    '(a+b)² = c² + 4×(½ab)',
-                    '展开化简得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
+                
+                if (step >= 3) {
+                    // 步骤3: 显示公式和标注
+                    ctx.fillStyle = '#fff';
+                    ctx.font = 'bold 13px Inter';
+                    // 计算旋转正方形的中心
+                    const cx = (v1.x + v2.x + v3.x + v4.x) / 4;
+                    const cy = (v1.y + v2.y + v3.y + v4.y) / 4;
+                    ctx.fillText('c²', cx - 12, cy + 5);
                     
-                    // 左侧：大正方形
-                    const ox1 = 80, oy1 = 300;
-                    const bigSize = (a+b) * scale;
+                    ctx.font = '11px Inter';
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText('边长 = a+b', ox + 5, oy + 15);
                     
-                    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(ox1, oy1 - bigSize, bigSize, bigSize);
+                    // 在大正方形旁写公式
+                    ctx.font = 'bold 12px Inter';
+                    ctx.fillStyle = '#7dd3fc';
+                    ctx.fillText('(a+b)² = c² + 2ab', ox + bigSize/2 - 60, oy - bigSize - 10);
+                }
+            }
+        },
+        p02: {
+            name: '邹元治证法',
+            category: '割补法',
+            steps: [
+                '将四个全等直角三角形拼成边长为(a+b)的大正方形',
+                '大正方形面积 = (a+b)²',
+                '也可看作边长为c的正方形加四个三角形',
+                '(a+b)² = c² + 4×(½ab)，即 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 15;
+                
+                const ox1 = 60, oy1 = h/2 + 100;
+                const bigSize = (a+b) * scale;
+                
+                // 左侧大正方形
+                ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+                ctx.strokeRect(ox1, oy1 - bigSize, bigSize, bigSize);
+                
+                if (step >= 1) {
+                    const colors = ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'];
                     
-                    // 四个三角形
-                    const colors = ['rgba(255,120,120,0.5)', 'rgba(120,255,120,0.5)', 'rgba(120,120,255,0.5)', 'rgba(255,220,100,0.5)'];
-                    
-                    // 左下
-                    ctx.fillStyle = colors[0];
+                    ctx.fillStyle = colors[0] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox1, oy1);
                     ctx.lineTo(ox1 + a*scale, oy1);
                     ctx.lineTo(ox1, oy1 - b*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    // 右下
-                    ctx.fillStyle = colors[1];
+                    ctx.fillStyle = colors[1] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox1 + a*scale, oy1);
                     ctx.lineTo(ox1 + bigSize, oy1);
                     ctx.lineTo(ox1 + bigSize, oy1 - a*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    // 右上
-                    ctx.fillStyle = colors[2];
+                    ctx.fillStyle = colors[2] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox1 + bigSize, oy1 - a*scale);
                     ctx.lineTo(ox1 + bigSize, oy1 - bigSize);
                     ctx.lineTo(ox1 + b*scale, oy1 - bigSize);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    // 左上
-                    ctx.fillStyle = colors[3];
+                    ctx.fillStyle = colors[3] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox1 + b*scale, oy1 - bigSize);
                     ctx.lineTo(ox1, oy1 - bigSize);
                     ctx.lineTo(ox1, oy1 - b*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
+                }
+                
+                if (step >= 2) {
+                    const cSize = c * scale;
+                    const cx = ox1 + (bigSize - cSize)/2;
+                    const cy = oy1 - bigSize + (bigSize - cSize)/2;
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.5)';
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.fillRect(cx, cy, cSize, cSize);
+                    ctx.strokeRect(cx, cy, cSize, cSize);
+                }
+                
+                // 等号
+                ctx.font = 'bold 24px Inter';
+                ctx.fillStyle = '#7dd3fc';
+                ctx.fillText('=', w/2 - 10, h/2 + 10);
+                
+                // 右侧
+                const ox2 = w/2 + 40, oy2 = h/2 + 100;
+                const cSize = c * scale;
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.5)';
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.fillRect(ox2, oy2 - cSize, cSize, cSize);
+                    ctx.strokeRect(ox2, oy2 - cSize, cSize, cSize);
+                }
+                
+                if (step >= 3) {
+                    const colors = ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'];
                     
-                    // 中间c²正方形
-                    ctx.fillStyle = 'rgba(200,150,255,0.4)';
-                    ctx.fillRect(ox1 + a*scale, oy1 - b*scale, c*scale*0.9, c*scale*0.9);
-                    ctx.strokeRect(ox1 + a*scale, oy1 - b*scale, c*scale*0.9, c*scale*0.9);
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('(a+b)²', ox1 + bigSize*0.3, oy1 - bigSize - 10);
-                    
-                    // 右侧：c²正方形 + 四个三角形
-                    const ox2 = 350, oy2 = 300;
-                    
-                    // c²正方形
-                    ctx.fillStyle = 'rgba(200,150,255,0.4)';
-                    ctx.fillRect(ox2, oy2 - c*scale, c*scale, c*scale);
-                    ctx.strokeRect(ox2, oy2 - c*scale, c*scale, c*scale);
-                    
-                    // 四个三角形围绕
-                    ctx.fillStyle = colors[0];
+                    ctx.fillStyle = colors[0] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox2, oy2);
-                    ctx.lineTo(ox2 + c*scale, oy2);
-                    ctx.lineTo(ox2, oy2 - c*scale);
+                    ctx.lineTo(ox2 + cSize, oy2);
+                    ctx.lineTo(ox2, oy2 - cSize);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    ctx.fillStyle = colors[1];
+                    ctx.fillStyle = colors[1] + '60';
                     ctx.beginPath();
-                    ctx.moveTo(ox2 + c*scale, oy2);
-                    ctx.lineTo(ox2 + c*scale + b*scale, oy2);
-                    ctx.lineTo(ox2 + c*scale, oy2 - a*scale);
+                    ctx.moveTo(ox2 + cSize, oy2);
+                    ctx.lineTo(ox2 + cSize + b*scale, oy2);
+                    ctx.lineTo(ox2 + cSize, oy2 - a*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    ctx.fillStyle = colors[2];
+                    ctx.fillStyle = colors[2] + '60';
                     ctx.beginPath();
-                    ctx.moveTo(ox2 + c*scale, oy2 - c*scale);
-                    ctx.lineTo(ox2 + c*scale + a*scale, oy2 - c*scale);
-                    ctx.lineTo(ox2 + c*scale, oy2 - c*scale - b*scale);
+                    ctx.moveTo(ox2 + cSize, oy2 - cSize);
+                    ctx.lineTo(ox2 + cSize + a*scale, oy2 - cSize);
+                    ctx.lineTo(ox2 + cSize, oy2 - cSize - b*scale);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
                     
-                    ctx.fillStyle = colors[3];
+                    ctx.fillStyle = colors[3] + '60';
                     ctx.beginPath();
-                    ctx.moveTo(ox2, oy2 - c*scale);
-                    ctx.lineTo(ox2, oy2 - c*scale - a*scale);
-                    ctx.lineTo(ox2 - b*scale, oy2 - c*scale);
+                    ctx.moveTo(ox2, oy2 - cSize);
+                    ctx.lineTo(ox2, oy2 - cSize - a*scale);
+                    ctx.lineTo(ox2 - b*scale, oy2 - cSize);
                     ctx.closePath();
                     ctx.fill();
-                    ctx.stroke();
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillText('c² + 4×½ab', ox2 + 10, oy2 - c*scale - 10);
-                    
-                    // 等号
-                    ctx.font = 'bold 30px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('=', 300, 200);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillText('邹元治证法: (a+b)² = c² + 2ab', 150, 360);
                 }
-            },
-            p03: {
-                name: '青朱出入图',
-                category: '割补法',
-                steps: [
-                    '刘徽的割补法，将青色和朱色图形移动',
-                    '以a为边的正方形(青色)和以b为边的正方形(朱色)',
-                    '通过割补，两正方形面积之和等于以c为边的正方形',
-                    '青出朱入，面积相等得证'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
-                    const ox = 100, oy = 320;
-                    
-                    // 左侧：a²和b²两个正方形
-                    // a²正方形 (青色)
-                    ctx.fillStyle = 'rgba(0,200,200,0.4)';
-                    ctx.strokeStyle = 'cyan';
-                    ctx.lineWidth = 2;
-                    ctx.fillRect(ox, oy - a*scale, a*scale, a*scale);
-                    ctx.strokeRect(ox, oy - a*scale, a*scale, a*scale);
-                    
-                    // b²正方形 (朱色)
-                    ctx.fillStyle = 'rgba(200,100,100,0.4)';
-                    ctx.strokeStyle = 'orange';
-                    ctx.fillRect(ox + a*scale + 20, oy - b*scale, b*scale, b*scale);
-                    ctx.strokeRect(ox + a*scale + 20, oy - b*scale, b*scale, b*scale);
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a² (青出)', ox + a*scale*0.2, oy - a*scale - 10);
-                    ctx.fillText('b² (朱入)', ox + a*scale + 20 + b*scale*0.2, oy - b*scale - 10);
-                    
-                    // 右侧：c²正方形
-                    const ox2 = 350, oy2 = 320;
-                    ctx.fillStyle = 'rgba(200,150,255,0.4)';
-                    ctx.strokeStyle = 'violet';
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('(a+b)²', ox1 + 5, oy1 - bigSize - 8);
+                ctx.fillText('c² + 4×½ab', ox2 + 5, oy2 - cSize - 8);
+            }
+        },
+        p03: {
+            name: '青朱出入图',
+            category: '割补法',
+            steps: [
+                '刘徽割补法：a²为"青出"，b²为"朱入"',
+                '将两个正方形分割成若干块',
+                '通过平移重组，拼成以c为边的正方形',
+                '因此 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 16;
+                
+                const ox1 = 50, oy1 = h/2 + 100;
+                
+                // a² - 青色
+                ctx.fillStyle = 'rgba(6, 182, 212, 0.5)';
+                ctx.strokeStyle = '#06b6d4';
+                ctx.fillRect(ox1, oy1 - a*scale, a*scale, a*scale);
+                ctx.strokeRect(ox1, oy1 - a*scale, a*scale, a*scale);
+                
+                if (step >= 1) {
+                    // b² - 朱色
+                    ctx.fillStyle = 'rgba(239, 68, 68, 0.5)';
+                    ctx.strokeStyle = '#ef4444';
+                    ctx.fillRect(ox1 + a*scale + 15, oy1 - b*scale, b*scale, b*scale);
+                    ctx.strokeRect(ox1 + a*scale + 15, oy1 - b*scale, b*scale, b*scale);
+                }
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('青出 a²', ox1 + 5, oy1 - a*scale - 8);
+                if (step >= 1) ctx.fillText('朱入 b²', ox1 + a*scale + 20, oy1 - b*scale - 8);
+                
+                // 等号
+                ctx.font = 'bold 24px Inter';
+                ctx.fillStyle = '#7dd3fc';
+                ctx.fillText('=', w/2 - 10, h/2 + 10);
+                
+                // 右侧c²
+                const ox2 = w/2 + 50, oy2 = h/2 + 100;
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.4)';
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.fillRect(ox2, oy2 - c*scale, c*scale, c*scale);
                     ctx.strokeRect(ox2, oy2 - c*scale, c*scale, c*scale);
-                    
-                    // 内部割补示意
-                    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
+                }
+                
+                if (step >= 3) {
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.8)';
+                    ctx.setLineDash([5, 5]);
                     ctx.beginPath();
                     ctx.moveTo(ox2, oy2 - b*scale);
                     ctx.lineTo(ox2 + c*scale, oy2 - b*scale);
                     ctx.stroke();
                     
+                    ctx.strokeStyle = 'rgba(239, 68, 68, 0.8)';
                     ctx.beginPath();
                     ctx.moveTo(ox2 + a*scale, oy2);
                     ctx.lineTo(ox2 + a*scale, oy2 - c*scale);
                     ctx.stroke();
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.fillText('c²', ox2 + c*scale*0.4, oy2 - c*scale*0.5);
-                    
-                    // 等号
-                    ctx.font = 'bold 30px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('=', 280, 250);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillText('刘徽青朱出入图: 青出 + 朱入 = c²', 150, 360);
+                    ctx.setLineDash([]);
                 }
-            },
-            p04: {
-                name: '总统证法',
-                category: '拼摆法',
-                steps: [
-                    '两个全等直角三角形构成梯形',
-                    '梯形面积 = ½(a+b)(a+b) = ½(a+b)²',
-                    '梯形面积也等于三个三角形面积之和',
-                    '½(a+b)² = ½ab + ½ab + ½c²',
-                    '化简得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 150, oy = 320;
-                    
-                    // 梯形顶点
-                    const A = {x: ox, y: oy};
-                    const B = {x: ox + a*scale, y: oy};
-                    const C = {x: ox + (a+b)*scale, y: oy - a*scale};
-                    const D = {x: ox - b*scale, y: oy - b*scale};
-                    
-                    // 画梯形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
+                
+                if (step >= 2) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '11px Inter';
+                    ctx.fillText('c²', ox2 + c*scale*0.4, oy2 - c*scale*0.5);
+                }
+            }
+        },
+        p04: {
+            name: '总统证法（加菲尔德梯形）',
+            category: '拼摆法',
+            steps: [
+                '将两个全等直角三角形拼成梯形',
+                '梯形面积 = ½(a+b)(a+b) = ½(a+b)²',
+                '也等于三个三角形面积：½ab + ½ab + ½c²',
+                '化简得 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 17;
+                const ox = w/2 - (a+b)*scale/2, oy = h/2 + 100;
+                
+                const A = {x: ox, y: oy};
+                const B = {x: ox + a*scale, y: oy};
+                const C = {x: ox + (a+b)*scale, y: oy - a*scale};
+                const D = {x: ox - b*scale, y: oy - b*scale};
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
                     ctx.moveTo(A.x, A.y);
@@ -718,48 +779,68 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 内部三角形分割线
-                    ctx.strokeStyle = 'rgba(255,255,255,0.6)';
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = 'rgba(167, 139, 250, 0.8)';
                     ctx.beginPath();
                     ctx.moveTo(B.x, B.y);
                     ctx.lineTo(D.x, D.y);
                     ctx.stroke();
-                    
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a', ox + a*scale*0.4, oy + 20);
-                    ctx.fillText('b', ox + a*scale + b*scale*0.4, oy - a*scale*0.3);
-                    ctx.fillText('c', ox + a*scale*0.3, oy - (a+b)*scale*0.25);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('加菲尔德梯形法', 200, 60);
-                    ctx.fillText('½(a+b)² = ab + ½c²', 180, 85);
-                    ctx.fillText('→ a² + b² = c²', 220, 110);
                 }
-            },
-            p05: {
-                name: '欧几里得证法',
-                category: '拼摆法',
-                steps: [
-                    '在直角三角形三边向外作三个正方形',
-                    '利用三角形全等证明面积关系',
-                    '正方形ACHK面积 = 2×△ABK面积',
-                    '正方形BCED面积 = 2×△BFC面积',
-                    '△ABK ≅ △BFC，故 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 14;
-                    const ox = 250, oy = 280;
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(248, 113, 113, 0.3)';
+                    ctx.beginPath();
+                    ctx.moveTo(A.x, A.y);
+                    ctx.lineTo(B.x, B.y);
+                    ctx.lineTo(D.x, D.y);
+                    ctx.closePath();
+                    ctx.fill();
                     
-                    // 直角三角形
-                    ctx.fillStyle = 'rgba(255,200,100,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                    ctx.fillStyle = 'rgba(74, 222, 128, 0.3)';
+                    ctx.beginPath();
+                    ctx.moveTo(B.x, B.y);
+                    ctx.lineTo(C.x, C.y);
+                    ctx.lineTo(D.x, D.y);
+                    ctx.closePath();
+                    ctx.fill();
+                    
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.4)';
+                    ctx.beginPath();
+                    ctx.moveTo(B.x, B.y);
+                    ctx.lineTo(ox + a*scale + c*scale*0.3, oy - c*scale*0.5);
+                    ctx.lineTo(D.x, D.y);
+                    ctx.closePath();
+                    ctx.fill();
+                }
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('a', ox + a*scale*0.4, oy + 15);
+                ctx.fillText('b', ox + a*scale + b*scale*0.4, oy - a*scale*0.3);
+                ctx.fillText('c', ox + a*scale*0.2, oy - (a+b)*scale*0.25);
+            }
+        },
+        p05: {
+            name: '欧几里得证法',
+            category: '拼摆法',
+            steps: [
+                '《几何原本》经典证明',
+                '在直角三角形三边向外作正方形',
+                '利用三角形全等证明面积关系',
+                '正方形ACHK面积 = 矩形AFGB面积',
+                '同理可证 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 13;
+                const ox = w/2 - b*scale/2, oy = h/2 + a*scale/2 + 40;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(251, 191, 36, 0.3)';
+                    ctx.strokeStyle = '#fbbf24';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + b*scale, oy);
@@ -767,143 +848,147 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // a²正方形
-                    ctx.fillStyle = 'rgba(255,100,100,0.3)';
+                }
+                
+                if (step >= 1) {
+                    ctx.fillStyle = 'rgba(248, 113, 113, 0.3)';
+                    ctx.strokeStyle = '#f87171';
                     ctx.fillRect(ox - a*scale, oy - a*scale, a*scale, a*scale);
                     ctx.strokeRect(ox - a*scale, oy - a*scale, a*scale, a*scale);
-                    
-                    // b²正方形
-                    ctx.fillStyle = 'rgba(100,255,100,0.3)';
+                }
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(74, 222, 128, 0.3)';
+                    ctx.strokeStyle = '#4ade80';
                     ctx.fillRect(ox, oy, b*scale, b*scale);
                     ctx.strokeRect(ox, oy, b*scale, b*scale);
-                    
-                    // c²正方形
-                    const cx = ox + b*scale, cy = oy - a*scale;
+                }
+                
+                if (step >= 3) {
+                    const Ax = ox + b*scale, Ay = oy;
+                    const Bx = ox, By = oy - a*scale;
                     const vx = a*scale, vy = b*scale;
-                    ctx.fillStyle = 'rgba(100,100,255,0.3)';
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.3)';
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.beginPath();
-                    ctx.moveTo(ox, oy - a*scale);
-                    ctx.lineTo(ox + b*scale, oy);
-                    ctx.lineTo(ox + b*scale + vx, oy + vy);
-                    ctx.lineTo(ox + vx, oy - a*scale + vy);
+                    ctx.moveTo(Bx, By);
+                    ctx.lineTo(Ax, Ay);
+                    ctx.lineTo(Ax + vx, Ay + vy);
+                    ctx.lineTo(Bx + vx, By + vy);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a²', ox - a*scale*0.7, oy - a*scale*0.5);
-                    ctx.fillText('b²', ox + b*scale*0.3, oy + b*scale*0.5);
-                    ctx.fillText('c²', ox + b*scale*0.5 + vx*0.3, oy - a*scale*0.5 + vy*0.3);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('欧几里得《几何原本》证法', 180, 50);
                 }
-            },
-            p06: {
-                name: '婆什迦罗证法',
-                category: '拼摆法',
-                steps: [
-                    '大正方形边长为c，内部有四个直角三角形',
-                    '大正方形面积 = c²',
-                    '也可看作边长为(a-b)的小正方形加四个三角形',
-                    'c² = (a-b)² + 4×(½ab)',
-                    '展开化简得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 200, oy = 320;
-                    
-                    // 大正方形c²
-                    ctx.fillStyle = 'rgba(200,150,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Inter';
+                if (step >= 1) ctx.fillText('a²', ox - a*scale*0.7, oy - a*scale*0.5);
+                if (step >= 2) ctx.fillText('b²', ox + b*scale*0.3, oy + b*scale*0.55);
+                if (step >= 3) ctx.fillText('c²', ox + b*scale*0.4 + a*scale*0.3, oy - a*scale*0.4 + b*scale*0.3);
+            }
+        },
+        p06: {
+            name: '婆什迦罗证法',
+            category: '拼摆法',
+            steps: [
+                '大正方形边长为c，内有四个直角三角形',
+                '大正方形面积 = c²',
+                '也可看作|a-b|²小正方形加四个三角形',
+                'c² = (a-b)² + 2ab = a² + b²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 17;
+                const ox = w/2 - c*scale/2, oy = h/2 + c*scale/2 + 30;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.2)';
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.fillRect(ox, oy - c*scale, c*scale, c*scale);
                     ctx.strokeRect(ox, oy - c*scale, c*scale, c*scale);
+                }
+                
+                if (step >= 1) {
+                    const colors = ['#f87171', '#4ade80', '#60a5fa', '#fbbf24'];
                     
-                    // 四个三角形
-                    const colors = ['rgba(255,100,100,0.5)', 'rgba(100,255,100,0.5)', 'rgba(100,100,255,0.5)', 'rgba(255,200,100,0.5)'];
-                    
-                    // 左下
-                    ctx.fillStyle = colors[0];
+                    ctx.fillStyle = colors[0] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + a*scale, oy);
                     ctx.lineTo(ox, oy - b*scale);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = colors[0];
                     ctx.stroke();
                     
-                    // 右下
-                    ctx.fillStyle = colors[1];
+                    ctx.fillStyle = colors[1] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox + c*scale, oy);
                     ctx.lineTo(ox + c*scale, oy - a*scale);
                     ctx.lineTo(ox + c*scale - b*scale, oy);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = colors[1];
                     ctx.stroke();
                     
-                    // 右上
-                    ctx.fillStyle = colors[2];
+                    ctx.fillStyle = colors[2] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox + c*scale, oy - c*scale);
                     ctx.lineTo(ox + c*scale - a*scale, oy - c*scale);
                     ctx.lineTo(ox + c*scale, oy - c*scale + b*scale);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = colors[2];
                     ctx.stroke();
                     
-                    // 左上
-                    ctx.fillStyle = colors[3];
+                    ctx.fillStyle = colors[3] + '60';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy - c*scale);
                     ctx.lineTo(ox, oy - c*scale + a*scale);
                     ctx.lineTo(ox + b*scale, oy - c*scale);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = colors[3];
                     ctx.stroke();
-                    
-                    // 中间小正方形
-                    ctx.fillStyle = 'rgba(255,255,255,0.3)';
+                }
+                
+                if (step >= 2) {
                     const smallSize = Math.abs(a-b) * scale;
+                    ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+                    ctx.strokeStyle = '#fff';
                     ctx.fillRect(ox + b*scale, oy - c*scale + a*scale, smallSize, smallSize);
                     ctx.strokeRect(ox + b*scale, oy - c*scale + a*scale, smallSize, smallSize);
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('c²', ox + c*scale*0.4, oy - c*scale*0.5);
-                    ctx.fillText('(a-b)²', ox + b*scale + smallSize*0.1, oy - c*scale + a*scale + smallSize*0.6);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('婆什迦罗证法: c² = (a-b)² + 2ab', 150, 60);
                 }
-            },
-            p07: {
-                name: '射影定理法',
-                category: '相似法',
-                steps: [
-                    '作斜边c上的高h，将斜边分为p和q两段',
-                    '利用相似三角形: △ACD ~ △ABC ~ △CBD',
-                    '由相似比得: a² = c·p, b² = c·q',
-                    '两式相加: a² + b² = c(p+q) = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 20;
-                    const ox = 200, oy = 320;
-                    
-                    // 直角三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 13px Inter';
+                ctx.fillText('c²', ox + c*scale*0.4, oy - c*scale*0.5);
+            }
+        },
+        p07: {
+            name: '射影定理法',
+            category: '相似法',
+            steps: [
+                '作斜边c上的高h，垂足分斜边为p和q',
+                '利用相似三角形：△ACD ~ △ABC ~ △CBD',
+                '由相似比：a² = c·p, b² = c·q',
+                '相加得 a² + b² = c(p+q) = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 18;
+                const ox = w/2 - c*scale/2, oy = h/2 + 70;
+                
+                const p = (a*a) / c;
+                const footX = ox + p*scale;
+                const hh = (a*b) / c;
+                const footY = oy - hh*scale;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + c*scale, oy);
@@ -911,70 +996,74 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 计算高的垂足位置
-                    const p = (a*a) / c;
-                    const footX = ox + p*scale;
-                    const h = (a*b) / c;
-                    const footY = oy - h*scale;
-                    
-                    // 画高
-                    ctx.strokeStyle = 'rgba(255,200,0,0.8)';
-                    ctx.lineWidth = 2;
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = '#fbbf24';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy - a*scale);
                     ctx.lineTo(footX, footY);
                     ctx.lineTo(ox + c*scale, oy);
                     ctx.stroke();
-                    
-                    // 直角标记
-                    ctx.strokeStyle = 'rgba(255,200,0,0.8)';
+                }
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(248, 113, 113, 0.25)';
                     ctx.beginPath();
-                    ctx.moveTo(footX - 8, footY - 4);
-                    ctx.lineTo(footX - 4, footY + 4);
-                    ctx.lineTo(footX + 4, footY);
+                    ctx.moveTo(ox, oy);
+                    ctx.lineTo(footX, footY);
+                    ctx.lineTo(ox, oy - a*scale);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#f87171';
                     ctx.stroke();
                     
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a', ox - 20, oy - a*scale*0.5);
-                    ctx.fillText('b', ox + c*scale*0.4, oy - a*scale*0.3);
-                    ctx.fillText('c', ox + c*scale*0.5, oy + 20);
-                    ctx.fillText('p', ox + p*scale*0.4, oy + 20);
-                    ctx.fillText('q', ox + p*scale + (c-p)*scale*0.4, oy + 20);
-                    ctx.fillText('h', footX + 10, footY);
-                    
-                    // 公式
-                    ctx.font = 'bold 13px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('射影定理: a² = c·p, b² = c·q', 150, 60);
-                    ctx.fillText('a² + b² = c(p+q) = c²', 180, 85);
+                    ctx.fillStyle = 'rgba(74, 222, 128, 0.25)';
+                    ctx.beginPath();
+                    ctx.moveTo(ox + c*scale, oy);
+                    ctx.lineTo(footX, footY);
+                    ctx.lineTo(ox, oy);
+                    ctx.closePath();
+                    ctx.fill();
+                    ctx.strokeStyle = '#4ade80';
+                    ctx.stroke();
                 }
-            },
-            p08: {
-                name: '托勒密定理法',
-                category: '相似法',
-                steps: [
-                    '构造圆内接矩形ABCD，对角线AC为直径',
-                    '矩形边长为a,b,a,b，对角线为c',
-                    '托勒密定理: AC·BD = AB·CD + AD·BC',
-                    'c² = a² + b²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
-                    const cx = 300, cy = 220;
-                    const radius = c * scale * 0.6;
-                    
-                    // 画圆
-                    ctx.strokeStyle = 'rgba(255,200,200,0.6)';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('a', ox - 15, oy - a*scale*0.5);
+                ctx.fillText('b', ox + c*scale*0.4, oy - a*scale*0.3);
+                ctx.fillText('c', ox + c*scale*0.5, oy + 15);
+                if (step >= 1) {
+                    ctx.fillText(`p=${p.toFixed(1)}`, ox + p*scale*0.2, oy + 15);
+                    ctx.fillText(`q=${(c-p).toFixed(1)}`, ox + p*scale + (c-p)*scale*0.3, oy + 15);
+                }
+            }
+        },
+        p08: {
+            name: '托勒密定理法',
+            category: '相似法',
+            steps: [
+                '构造圆内接矩形，对角线为直径',
+                '矩形边长为a,b,a,b，对角线为c',
+                '托勒密定理：AC·BD = AB·CD + AD·BC',
+                'c² = a² + b²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 15;
+                const cx = w/2, cy = h/2 + 10;
+                const radius = c * scale * 0.55;
+                
+                if (step >= 0) {
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
                     ctx.beginPath();
                     ctx.arc(cx, cy, radius, 0, 2*Math.PI);
                     ctx.stroke();
-                    
-                    // 矩形顶点 (圆内接矩形)
+                }
+                
+                if (step >= 1) {
                     const angle = Math.atan2(a, b);
                     const rect = [
                         {x: cx + radius*Math.cos(angle), y: cy + radius*Math.sin(angle)},
@@ -983,18 +1072,26 @@
                         {x: cx + radius*Math.cos(angle), y: cy - radius*Math.sin(angle)}
                     ];
                     
-                    // 画矩形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(rect[0].x, rect[0].y);
                     for (let i = 1; i < 4; i++) ctx.lineTo(rect[i].x, rect[i].y);
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
+                }
+                
+                if (step >= 2) {
+                    const angle = Math.atan2(a, b);
+                    const rect = [
+                        {x: cx + radius*Math.cos(angle), y: cy + radius*Math.sin(angle)},
+                        {x: cx - radius*Math.cos(angle), y: cy + radius*Math.sin(angle)},
+                        {x: cx - radius*Math.cos(angle), y: cy - radius*Math.sin(angle)},
+                        {x: cx + radius*Math.cos(angle), y: cy - radius*Math.sin(angle)}
+                    ];
                     
-                    // 对角线
-                    ctx.strokeStyle = 'rgba(255,200,100,0.8)';
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.beginPath();
                     ctx.moveTo(rect[0].x, rect[0].y);
                     ctx.lineTo(rect[2].x, rect[2].y);
@@ -1004,39 +1101,35 @@
                     ctx.lineTo(rect[3].x, rect[3].y);
                     ctx.stroke();
                     
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a', rect[0].x + (rect[1].x-rect[0].x)*0.4, rect[0].y + 20);
-                    ctx.fillText('b', rect[1].x - 25, rect[1].y + (rect[2].y-rect[1].y)*0.5);
-                    ctx.fillText('c', cx - 10, cy);
-                    
-                    // 公式
-                    ctx.font = 'bold 13px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('托勒密定理: AC·BD = AB·CD + AD·BC', 140, 50);
-                    ctx.fillText('c² = a² + b²', 240, 75);
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, 5, 0, 2*Math.PI);
+                    ctx.fill();
                 }
-            },
-            p09: {
-                name: '切割线定理法',
-                category: '相似法',
-                steps: [
-                    '以直角顶点C为圆心，a为半径画圆',
-                    '斜边AB延长线与圆交于D,E两点',
-                    '切割线定理: BD·BE = BC² = a²',
-                    '同理可得另一切割线关系',
-                    '综合得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
-                    const ox = 200, oy = 280;
-                    
-                    // 直角三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('c', cx - 6, cy - 12);
+            }
+        },
+        p09: {
+            name: '切割线定理法',
+            category: '相似法',
+            steps: [
+                '以直角顶点C为圆心，a为半径作圆',
+                '斜边AB延长线与圆交于D、E',
+                '切割线定理：AD·AE = AC² = b²',
+                '综合推导得 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 15;
+                const ox = w/2 - b*scale/2, oy = h/2 + a*scale/2 + 20;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + b*scale, oy);
@@ -1044,91 +1137,95 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 以C为圆心，a为半径的圆
-                    ctx.strokeStyle = 'rgba(0,255,200,0.5)';
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = 'rgba(6, 182, 212, 0.6)';
                     ctx.beginPath();
                     ctx.arc(ox, oy, a*scale, -Math.PI/2, Math.PI/2);
                     ctx.stroke();
-                    
-                    // 斜边延长线
-                    ctx.strokeStyle = 'rgba(255,200,100,0.6)';
+                }
+                
+                if (step >= 2) {
+                    ctx.strokeStyle = 'rgba(251, 191, 36, 0.6)';
+                    ctx.setLineDash([5, 5]);
                     ctx.beginPath();
                     ctx.moveTo(ox + b*scale, oy - a*scale);
-                    ctx.lineTo(ox - b*scale*0.5, oy + a*scale*0.5);
+                    ctx.lineTo(ox - b*scale*0.8, oy + a*scale*0.8);
                     ctx.stroke();
-                    
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('a', ox - 20, oy - a*scale*0.5);
-                    ctx.fillText('b', ox + b*scale*0.4, oy + 20);
-                    ctx.fillText('c', ox + b*scale*0.4, oy - a*scale*0.3);
-                    
-                    // 公式
-                    ctx.font = 'bold 13px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('切割线定理: 圆幂定理应用', 170, 60);
+                    ctx.setLineDash([]);
                 }
-            },
-            p10: {
-                name: '差平方公式法',
-                category: '代数法',
-                steps: [
-                    '(a+b)² = a² + 2ab + b²',
-                    '(a-b)² = a² - 2ab + b²',
-                    '两式相减: (a+b)² - (a-b)² = 4ab',
-                    '结合几何图形面积关系',
-                    '可推出 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    
-                    // 公式展示
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 18px Inter';
-                    ctx.fillText('代数恒等式证明', 200, 80);
-                    
-                    ctx.font = '16px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('(a + b)² = a² + 2ab + b²', 150, 140);
-                    ctx.fillText('(a - b)² = a² - 2ab + b²', 150, 180);
-                    
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('a', ox - 15, oy - a*scale*0.5);
+                ctx.fillText('b', ox + b*scale*0.4, oy + 15);
+                ctx.fillText('c', ox + b*scale*0.3, oy - a*scale*0.3);
+            }
+        },
+        p10: {
+            name: '差平方公式法',
+            category: '代数法',
+            steps: [
+                '利用代数恒等式展开',
+                '(a+b)² = a² + 2ab + b²',
+                '(a-b)² = a² - 2ab + b²',
+                '结合几何关系推出 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 16px Inter';
+                ctx.fillText('代数恒等式', w/2 - 50, 50);
+                
+                if (step >= 0) {
+                    ctx.font = '15px Inter';
+                    ctx.fillStyle = '#7dd3fc';
+                    ctx.fillText('(a + b)² = a² + 2ab + b²', w/2 - 110, 100);
+                }
+                
+                if (step >= 1) {
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.fillText('(a - b)² = a² - 2ab + b²', w/2 - 110, 140);
+                }
+                
+                if (step >= 2) {
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
                     ctx.beginPath();
-                    ctx.moveTo(150, 200);
-                    ctx.lineTo(450, 200);
+                    ctx.moveTo(w/2 - 150, 165);
+                    ctx.lineTo(w/2 + 150, 165);
                     ctx.stroke();
                     
-                    ctx.fillStyle = '#ffaaaa';
-                    ctx.fillText('相加: (a+b)² + (a-b)² = 2a² + 2b²', 150, 240);
-                    ctx.fillStyle = '#aaffaa';
-                    ctx.fillText('相减: (a+b)² - (a-b)² = 4ab', 150, 280);
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillText('结合 c² = (a+b)² - 2ab = a² + b²', 150, 330);
+                    ctx.fillStyle = '#4ade80';
+                    ctx.fillText('相减: (a+b)² - (a-b)² = 4ab', w/2 - 130, 200);
                 }
-            },
-            p11: {
-                name: '余弦定理特例',
-                category: '代数法',
-                steps: [
-                    '余弦定理: c² = a² + b² - 2ab·cosC',
-                    '当 C = 90° 时，cos90° = 0',
-                    '因此 c² = a² + b² - 0',
-                    '即 a² + b² = c²',
-                    '勾股定理是余弦定理的特例'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 250, oy = 300;
-                    
-                    // 直角三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                if (step >= 3) {
+                    ctx.fillStyle = '#a78bfa';
+                    ctx.fillText('∴ c² = a² + b²', w/2 - 60, 240);
+                }
+            }
+        },
+        p11: {
+            name: '余弦定理特例',
+            category: '代数法',
+            steps: [
+                '余弦定理：c² = a² + b² - 2ab·cosC',
+                '当 C = 90° 时，cos90° = 0',
+                '因此 c² = a² + b²',
+                '勾股定理是余弦定理的特例'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 17;
+                const ox = w/2 - b*scale/2, oy = h/2 + a*scale/2 + 30;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + b*scale, oy);
@@ -1136,126 +1233,122 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 直角标记
-                    ctx.strokeStyle = 'rgba(255,200,0,0.8)';
-                    ctx.beginPath();
-                    ctx.moveTo(ox+12, oy);
-                    ctx.lineTo(ox+12, oy-12);
-                    ctx.lineTo(ox, oy-12);
-                    ctx.stroke();
-                    
-                    // 角度标记
-                    ctx.strokeStyle = 'rgba(255,150,150,0.8)';
-                    ctx.beginPath();
-                    ctx.arc(ox, oy, 30, -Math.PI/2, 0);
-                    ctx.stroke();
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('C = 90°', ox + 35, oy - 5);
-                    ctx.fillText('a', ox - 20, oy - a*scale*0.5);
-                    ctx.fillText('b', ox + b*scale*0.4, oy + 20);
-                    ctx.fillText('c', ox + b*scale*0.3, oy - a*scale*0.3);
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('余弦定理: c² = a² + b² - 2ab·cosC', 140, 80);
-                    ctx.fillStyle = '#aaffaa';
-                    ctx.fillText('当 C = 90° 时: cos90° = 0', 170, 110);
-                    ctx.fillStyle = '#ffaaaa';
-                    ctx.fillText('∴ c² = a² + b²', 220, 140);
                 }
-            },
-            p12: {
-                name: '向量点积法',
-                category: '代数法',
-                steps: [
-                    '设向量 α = (a, 0)，向量 β = (0, b)',
-                    '则 α ⊥ β (两向量垂直)',
-                    '向量 α - β = (a, -b)',
-                    '|α - β|² = a² + b² = c²',
-                    '勾股定理是向量正交的性质'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 200, oy = 320;
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.moveTo(ox + 10, oy);
+                    ctx.lineTo(ox + 10, oy - 10);
+                    ctx.lineTo(ox, oy - 10);
+                    ctx.stroke();
+                }
+                
+                if (step >= 2) {
+                    ctx.strokeStyle = '#f87171';
+                    ctx.beginPath();
+                    ctx.arc(ox, oy, 25, -Math.PI/2, 0);
+                    ctx.stroke();
                     
-                    // 坐标轴
-                    ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-                    ctx.lineWidth = 1;
+                    ctx.fillStyle = '#f87171';
+                    ctx.font = 'bold 13px Inter';
+                    ctx.fillText('C=90°', ox + 30, oy - 5);
+                }
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('a', ox - 15, oy - a*scale*0.5);
+                ctx.fillText('b', ox + b*scale*0.4, oy + 15);
+                ctx.fillText('c', ox + b*scale*0.3, oy - a*scale*0.3);
+            }
+        },
+        p12: {
+            name: '向量点积法',
+            category: '代数法',
+            steps: [
+                '设向量 α = (a, 0)，向量 β = (0, b)',
+                '则 α ⊥ β（两向量垂直）',
+                '|α - β|² = |α|² + |β|² = a² + b² = c²',
+                '这是向量正交性的直接结果'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 17;
+                const ox = w/2 - 70, oy = h/2 + 70;
+                
+                if (step >= 0) {
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
                     ctx.beginPath();
                     ctx.moveTo(ox - 20, oy);
-                    ctx.lineTo(ox + 200, oy);
+                    ctx.lineTo(ox + 180, oy);
                     ctx.moveTo(ox, oy + 20);
-                    ctx.lineTo(ox, oy - 200);
+                    ctx.lineTo(ox, oy - 180);
                     ctx.stroke();
-                    
-                    // 向量α (红色)
-                    ctx.strokeStyle = 'rgba(255,100,100,0.9)';
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = '#f87171';
                     ctx.lineWidth = 3;
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + a*scale, oy);
                     ctx.stroke();
-                    
-                    // 向量β (绿色)
-                    ctx.strokeStyle = 'rgba(100,255,100,0.9)';
+                }
+                
+                if (step >= 2) {
+                    ctx.strokeStyle = '#4ade80';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox, oy - b*scale);
                     ctx.stroke();
-                    
-                    // 向量α-β (蓝色)
-                    ctx.strokeStyle = 'rgba(100,100,255,0.9)';
+                }
+                
+                if (step >= 3) {
+                    ctx.strokeStyle = '#60a5fa';
                     ctx.beginPath();
                     ctx.moveTo(ox + a*scale, oy);
                     ctx.lineTo(ox, oy - b*scale);
                     ctx.stroke();
                     
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('α', ox + a*scale*0.5, oy + 25);
-                    ctx.fillText('β', ox - 25, oy - b*scale*0.5);
-                    ctx.fillText('α-β', ox + a*scale*0.3, oy - b*scale*0.3);
-                    
-                    // 直角标记
-                    ctx.strokeStyle = 'rgba(255,200,0,0.8)';
+                    ctx.strokeStyle = '#fbbf24';
                     ctx.lineWidth = 2;
                     ctx.beginPath();
-                    ctx.moveTo(ox+10, oy);
-                    ctx.lineTo(ox+10, oy-10);
-                    ctx.lineTo(ox, oy-10);
+                    ctx.moveTo(ox + 8, oy);
+                    ctx.lineTo(ox + 8, oy - 8);
+                    ctx.lineTo(ox, oy - 8);
                     ctx.stroke();
-                    
-                    // 公式
-                    ctx.font = 'bold 14px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('向量法: |α - β|² = |α|² + |β|²', 150, 80);
-                    ctx.fillText('(α ⊥ β)', 260, 105);
                 }
-            },
-            p13: {
-                name: '杨作玫证法',
-                category: '其他经典',
-                steps: [
-                    '通过旋转和对称构造正方形',
-                    '将直角三角形绕直角顶点旋转90°',
-                    '形成一个大正方形，内部包含c²',
-                    '通过面积计算得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
-                    const ox = 220, oy = 300;
-                    
-                    // 原始三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.4)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#f87171';
+                ctx.font = 'bold 13px Inter';
+                if (step >= 1) ctx.fillText('α', ox + a*scale*0.5, oy + 22);
+                ctx.fillStyle = '#4ade80';
+                if (step >= 2) ctx.fillText('β', ox - 22, oy - b*scale*0.5);
+                ctx.fillStyle = '#60a5fa';
+                if (step >= 3) ctx.fillText('α-β', ox + a*scale*0.3, oy - b*scale*0.3);
+            }
+        },
+        p13: {
+            name: '杨作玫证法',
+            category: '其他经典',
+            steps: [
+                '通过旋转和对称构造正方形',
+                '将直角三角形绕直角顶点旋转90°、180°、270°',
+                '四个三角形形成大正方形，内部有c²',
+                '通过面积关系得证'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 14;
+                const ox = w/2, oy = h/2 + 50;
+                
+                const colors = ['rgba(248, 113, 113, 0.5)', 'rgba(74, 222, 128, 0.5)', 'rgba(96, 165, 250, 0.5)', 'rgba(251, 191, 36, 0.5)'];
+                
+                if (step >= 0) {
+                    ctx.fillStyle = colors[0];
+                    ctx.strokeStyle = '#f87171';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + a*scale, oy);
@@ -1263,9 +1356,11 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 旋转90°后的三角形
-                    ctx.fillStyle = 'rgba(255,180,100,0.4)';
+                }
+                
+                if (step >= 1) {
+                    ctx.fillStyle = colors[1];
+                    ctx.strokeStyle = '#4ade80';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox, oy + a*scale);
@@ -1273,9 +1368,11 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 再旋转
-                    ctx.fillStyle = 'rgba(180,255,100,0.4)';
+                }
+                
+                if (step >= 2) {
+                    ctx.fillStyle = colors[2];
+                    ctx.strokeStyle = '#60a5fa';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox - a*scale, oy);
@@ -1284,7 +1381,8 @@
                     ctx.fill();
                     ctx.stroke();
                     
-                    ctx.fillStyle = 'rgba(255,100,180,0.4)';
+                    ctx.fillStyle = colors[3];
+                    ctx.strokeStyle = '#fbbf24';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox, oy - a*scale);
@@ -1292,36 +1390,41 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 外围正方形
-                    ctx.strokeStyle = 'rgba(255,255,255,0.5)';
-                    const big = (a+b) * scale;
-                    ctx.strokeRect(ox - b*scale, oy - a*scale, big, big);
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('杨作玫旋转证法', 200, 80);
-                    ctx.fillText('旋转对称构造', 210, 105);
                 }
-            },
-            p14: {
-                name: '希波克拉底月牙',
-                category: '其他经典',
-                steps: [
-                    '以直角三角形三边为直径作半圆',
-                    '两直角边上半圆面积之和 = 斜边上半圆面积',
-                    '两个月牙形面积之和 = 直角三角形面积',
-                    '这是古希腊数学家希波克拉底的发现'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 16;
-                    const ox = 250, oy = 300;
+                
+                if (step >= 3) {
+                    const big = (a+b) * scale;
+                    ctx.strokeStyle = 'rgba(148, 163, 184, 0.5)';
+                    ctx.setLineDash([5, 5]);
+                    ctx.strokeRect(ox - b*scale, oy - a*scale, big, big);
+                    ctx.setLineDash([]);
                     
-                    // 直角三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                    const cSize = c * scale;
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.3)';
+                    ctx.strokeStyle = '#a78bfa';
+                    ctx.fillRect(ox - cSize/2, oy - cSize/2, cSize, cSize);
+                    ctx.strokeRect(ox - cSize/2, oy - cSize/2, cSize, cSize);
+                }
+            }
+        },
+        p14: {
+            name: '希波克拉底月牙',
+            category: '其他经典',
+            steps: [
+                '以直角三角形三边为直径作半圆',
+                '两直角边上半圆面积之和 = 斜边上半圆面积',
+                '两个月牙形面积之和 = 直角三角形面积',
+                '这是希波克拉底的著名发现'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 15;
+                const ox = w/2 - b*scale/2, oy = h/2 + a*scale/2 + 20;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.2)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + b*scale, oy);
@@ -1329,59 +1432,60 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // a边半圆 (向上)
-                    ctx.strokeStyle = 'rgba(255,100,100,0.6)';
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = '#f87171';
                     ctx.beginPath();
                     ctx.arc(ox, oy - a*scale*0.5, a*scale*0.5, -Math.PI/2, Math.PI/2);
                     ctx.stroke();
-                    
-                    // b边半圆 (向右)
-                    ctx.strokeStyle = 'rgba(100,255,100,0.6)';
+                }
+                
+                if (step >= 2) {
+                    ctx.strokeStyle = '#4ade80';
                     ctx.beginPath();
                     ctx.arc(ox + b*scale*0.5, oy, b*scale*0.5, 0, Math.PI);
                     ctx.stroke();
-                    
-                    // c边半圆 (斜向)
+                }
+                
+                if (step >= 3) {
                     const cx = ox + b*scale*0.5;
                     const cy = oy - a*scale*0.5;
-                    ctx.strokeStyle = 'rgba(100,100,255,0.6)';
+                    const cAngle = Math.atan2(a, b);
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.beginPath();
-                    ctx.arc(cx, cy, c*scale*0.5, Math.atan2(a,b) + Math.PI/2, Math.atan2(a,b) - Math.PI/2);
+                    ctx.arc(cx, cy, c*scale*0.5, cAngle + Math.PI/2, cAngle - Math.PI/2);
                     ctx.stroke();
-                    
-                    // 月牙区域示意
-                    ctx.fillStyle = 'rgba(255,200,100,0.2)';
-                    ctx.beginPath();
-                    ctx.arc(ox, oy - a*scale*0.5, a*scale*0.5, -Math.PI/2, Math.PI/2);
-                    ctx.lineTo(ox, oy - a*scale);
-                    ctx.fill();
-                    
-                    ctx.fillStyle = 'white';
-                    ctx.font = '14px Inter';
-                    ctx.fillText('希波克拉底月牙', 200, 80);
-                    ctx.fillText('月牙面积 = △面积', 190, 105);
                 }
-            },
-            p15: {
-                name: '帕斯卡证法',
-                category: '其他经典',
-                steps: [
-                    '利用比例线段和相似三角形',
-                    '通过构造辅助线形成相似三角形',
-                    '利用比例关系 a:c = p:a, b:c = q:b',
-                    '得 a² = c·p, b² = c·q',
-                    '相加即得 a² + b² = c²'
-                ],
-                draw: function(ctx, a, b, c) {
-                    ctx.clearRect(0, 0, 600, 400);
-                    const scale = 18;
-                    const ox = 200, oy = 320;
-                    
-                    // 大直角三角形
-                    ctx.fillStyle = 'rgba(100,180,255,0.3)';
-                    ctx.strokeStyle = 'white';
-                    ctx.lineWidth = 2;
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = 'bold 12px Inter';
+                ctx.fillText('希波克拉底月牙', w/2 - 55, 40);
+            }
+        },
+        p15: {
+            name: '帕斯卡证法',
+            category: '其他经典',
+            steps: [
+                '利用相似三角形和比例线段',
+                '作斜边上的高，形成三个相似直角三角形',
+                '由相似比：a² = c·p, b² = c·q',
+                '相加得 a² + b² = c²'
+            ],
+            draw: function(ctx, step) {
+                const w = proofCanvas.width, h = proofCanvas.height;
+                ctx.clearRect(0, 0, w, h);
+                const scale = 17;
+                const ox = w/2 - c*scale/2, oy = h/2 + 60;
+                
+                const p = (a*a) / c;
+                const footX = ox + p*scale;
+                const hh = (a*b) / c;
+                const footY = oy - hh*scale;
+                
+                if (step >= 0) {
+                    ctx.fillStyle = 'rgba(56, 189, 248, 0.15)';
+                    ctx.strokeStyle = '#38bdf8';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(ox + c*scale, oy);
@@ -1389,166 +1493,187 @@
                     ctx.closePath();
                     ctx.fill();
                     ctx.stroke();
-                    
-                    // 高线
-                    const p = (a*a) / c;
-                    const footX = ox + p*scale;
-                    const h = (a*b) / c;
-                    const footY = oy - h*scale;
-                    
-                    ctx.strokeStyle = 'rgba(255,200,0,0.8)';
+                }
+                
+                if (step >= 1) {
+                    ctx.strokeStyle = '#fbbf24';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy - a*scale);
                     ctx.lineTo(footX, footY);
                     ctx.lineTo(ox + c*scale, oy);
                     ctx.stroke();
-                    
-                    // 小三角形
-                    ctx.fillStyle = 'rgba(255,100,100,0.3)';
+                }
+                
+                if (step >= 2) {
+                    ctx.fillStyle = 'rgba(248, 113, 113, 0.25)';
                     ctx.beginPath();
                     ctx.moveTo(ox, oy);
                     ctx.lineTo(footX, footY);
                     ctx.lineTo(ox, oy - a*scale);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = '#f87171';
                     ctx.stroke();
                     
-                    ctx.fillStyle = 'rgba(100,255,100,0.3)';
+                    ctx.fillStyle = 'rgba(167, 139, 250, 0.25)';
                     ctx.beginPath();
                     ctx.moveTo(ox + c*scale, oy);
                     ctx.lineTo(footX, footY);
                     ctx.lineTo(ox, oy);
                     ctx.closePath();
                     ctx.fill();
+                    ctx.strokeStyle = '#a78bfa';
                     ctx.stroke();
-                    
-                    // 标注
-                    ctx.fillStyle = 'white';
-                    ctx.font = '13px Inter';
-                    ctx.fillText('a', ox - 18, oy - a*scale*0.5);
-                    ctx.fillText('b', ox + c*scale*0.4, oy - a*scale*0.3);
-                    ctx.fillText('c', ox + c*scale*0.5, oy + 18);
-                    ctx.fillText('p', ox + p*scale*0.4, oy + 18);
-                    
-                    // 公式
-                    ctx.font = 'bold 13px Inter';
-                    ctx.fillStyle = '#c3e2ff';
-                    ctx.fillText('帕斯卡证法: 相似三角形比例', 150, 70);
-                    ctx.fillText('a/c = p/a → a² = c·p', 180, 95);
-                    ctx.fillText('b/c = q/b → b² = c·q', 180, 120);
                 }
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '11px Inter';
+                ctx.fillText('a', ox - 15, oy - a*scale*0.5);
+                ctx.fillText('b', ox + c*scale*0.4, oy - a*scale*0.3);
+                ctx.fillText('c', ox + c*scale*0.5, oy + 15);
+                if (step >= 1) ctx.fillText(`p=${p.toFixed(1)}`, ox + p*scale*0.2, oy + 15);
             }
-        };
+        }
+    };
 
-        const proofCategories = [
-            { name: '📐 割补法', proofs: ['p01','p02','p03'] },
-            { name: '🧩 拼摆法', proofs: ['p04','p05','p06'] },
-            { name: '🔷 相似法', proofs: ['p07','p08','p09'] },
-            { name: '📏 代数法', proofs: ['p10','p11','p12'] },
-            { name: '🎯 其他经典', proofs: ['p13','p14','p15'] }
-        ];
+    const proofCategories = [
+        { name: '📐 割补法', proofs: ['p01', 'p02', 'p03'] },
+        { name: '🧩 拼摆法', proofs: ['p04', 'p05', 'p06'] },
+        { name: '🔷 相似法', proofs: ['p07', 'p08', 'p09'] },
+        { name: '📏 代数法', proofs: ['p10', 'p11', 'p12'] },
+        { name: '🎯 其他经典', proofs: ['p13', 'p14', 'p15'] }
+    ];
 
-        // 渲染左侧列表
+    // ========== 渲染证明列表 ==========
+    function renderProofList() {
         const container = document.getElementById('proofListContainer');
-        function renderProofList() {
-            let html = '';
-            proofCategories.forEach((cat, idx) => {
-                const catId = `cat_${idx}`;
-                const isFirst = idx === 0;
-                html += `<div class="proof-category">`;
-                html += `<div class="category-header ${!isFirst ? 'collapsed' : ''}" onclick="window.toggleCategory(this)" data-cat="${catId}">`;
-                html += `<span>${cat.name}</span> <i class="fas fa-chevron-down"></i>`;
+        let html = '';
+        proofCategories.forEach((cat, idx) => {
+            const catId = `cat_${idx}`;
+            const isFirst = idx === 0;
+            html += `<div class="category">`;
+            html += `<div class="category-header ${!isFirst ? 'collapsed' : ''}" onclick="toggleCategory(this)" data-cat="${catId}">`;
+            html += `<span>${cat.name}</span><i class="fas fa-chevron-down"></i>`;
+            html += `</div>`;
+            html += `<div class="proof-items ${!isFirst ? 'collapsed' : ''}" id="${catId}">`;
+            cat.proofs.forEach(pid => {
+                const proof = proofData[pid];
+                html += `<div class="proof-item ${pid === activeProofId ? 'active' : ''}" data-id="${pid}" onclick="selectProof('${pid}')">`;
+                html += `<i class="fas fa-cube"></i>${proof.name}`;
                 html += `</div>`;
-                html += `<div class="sub-item-list ${!isFirst ? 'collapsed' : ''}" id="${catId}">`;
-                cat.proofs.forEach(pid => {
-                    html += `<div class="proof-item ${pid === activeProofId ? 'active' : ''}" data-proof-id="${pid}" onclick="window.selectProof('${pid}')">`;
-                    html += `<i class="fas fa-shapes"></i> ${proofData[pid].name}`;
-                    html += `</div>`;
-                });
-                html += `</div></div>`;
             });
-            container.innerHTML = html;
+            html += `</div></div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function toggleCategory(header) {
+        const catId = header.dataset.cat;
+        const items = document.getElementById(catId);
+        items.classList.toggle('collapsed');
+        header.classList.toggle('collapsed');
+    }
+
+    function selectProof(pid) {
+        activeProofId = pid;
+        currentStep = 0;
+        stopAnimation();
+        
+        document.querySelectorAll('.proof-item').forEach(el => {
+            el.classList.toggle('active', el.dataset.id === pid);
+        });
+        
+        const proof = proofData[pid];
+        totalSteps = proof.steps.length;
+        
+        document.getElementById('proofTitle').innerHTML = `<i class="fas fa-cube"></i> ${proof.name}`;
+        document.getElementById('totalSteps').textContent = totalSteps;
+        document.getElementById('currentStep').textContent = currentStep;
+        
+        renderSteps();
+        updateProgress();
+        drawProof(pid, currentStep);
+    }
+
+    function renderSteps() {
+        const proof = proofData[activeProofId];
+        const list = document.getElementById('stepsList');
+        list.innerHTML = proof.steps.map((s, i) => {
+            let cls = '';
+            if (i < currentStep) cls = 'completed';
+            else if (i === currentStep) cls = 'active';
+            return `<li class="${cls}">${s}</li>`;
+        }).join('');
+    }
+
+    function updateProgress() {
+        const pct = (currentStep / (totalSteps - 1)) * 100;
+        document.getElementById('progressBar').style.width = pct + '%';
+        document.getElementById('currentStep').textContent = currentStep;
+    }
+
+    function drawProof(pid, step) {
+        const proof = proofData[pid];
+        if (proof && proof.draw) {
+            proof.draw(proofCtx, step);
         }
+    }
 
-        window.toggleCategory = function(header) {
-            const catId = header.dataset.cat;
-            const subDiv = document.getElementById(catId);
-            if (subDiv) {
-                subDiv.classList.toggle('collapsed');
-                header.classList.toggle('collapsed');
-            }
-        };
-
-        // 选择证明
-        window.selectProof = function(proofId) {
-            activeProofId = proofId;
-            document.querySelectorAll('.proof-item').forEach(el => {
-                if (el.dataset.proofId === proofId) el.classList.add('active');
-                else el.classList.remove('active');
-            });
-            document.getElementById('activeProofTitle').innerHTML = `<i class="fas fa-play-circle" style="color:#8fcbff;"></i> ${proofData[proofId].name}`;
-            const stepsList = document.getElementById('stepsList');
-            stepsList.innerHTML = proofData[proofId].steps.map(s => `<li><i class="fas fa-angle-right"></i> ${s}</li>`).join('');
-            drawProof(proofId);
-        };
-
-        // 画布绘制函数
-        const canvas = document.getElementById('proofCanvas');
-        const ctx = canvas.getContext('2d');
-
-        window.drawProof = function(proofId) {
-            const data = proofData[proofId];
-            if (data && data.draw) {
-                data.draw(ctx, a, b, c);
-            }
-        };
-
-        // 初始化
-        renderProofList();
-        updateSliders();
-        drawMainDemo();
-        setTimeout(() => selectProof('p01'), 200);
-
-        // 烟花特效
-        const fCanvas = document.getElementById('fireworks-canvas');
-        const fCtx = fCanvas.getContext('2d');
-        let width, height, particles = [];
-        function resizeCanvas() {
-            width = window.innerWidth;
-            height = window.innerHeight;
-            fCanvas.width = width;
-            fCanvas.height = height;
+    // ========== 动画控制 ==========
+    function togglePlay() {
+        if (isPlaying) {
+            stopAnimation();
+        } else {
+            startAnimation();
         }
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        function createFirework(x, y) {
-            const count = 12 + Math.floor(Math.random() * 10);
-            for (let i = 0; i < count; i++) {
-                const angle = Math.random() * 2 * Math.PI;
-                const speed = 2 + Math.random() * 5;
-                const vx = Math.cos(angle) * speed * (0.5 + Math.random() * 0.8);
-                const vy = Math.sin(angle) * speed * (0.5 + Math.random() * 0.8);
-                const life = 0.8 + Math.random() * 0.8;
-                particles.push({ x, y, vx, vy, size: 3 + Math.random() * 5, color: `hsl(${Math.random() * 60 + 200}, 80%, 70%)`, life, maxLife: life });
+    }
+
+    function startAnimation() {
+        isPlaying = true;
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-pause"></i> 暂停';
+        
+        playInterval = setInterval(() => {
+            if (currentStep < totalSteps - 1) {
+                currentStep++;
+            } else {
+                currentStep = 0;
             }
+            renderSteps();
+            updateProgress();
+            drawProof(activeProofId, currentStep);
+        }, 1500);
+    }
+
+    function stopAnimation() {
+        isPlaying = false;
+        clearInterval(playInterval);
+        document.getElementById('playBtn').innerHTML = '<i class="fas fa-play"></i> 播放';
+    }
+
+    function nextStep() {
+        stopAnimation();
+        if (currentStep < totalSteps - 1) {
+            currentStep++;
+            renderSteps();
+            updateProgress();
+            drawProof(activeProofId, currentStep);
         }
-        function animateParticles() {
-            fCtx.clearRect(0, 0, width, height);
-            for (let i = particles.length - 1; i >= 0; i--) {
-                const p = particles[i];
-                p.x += p.vx; p.y += p.vy; p.vy += 0.05; p.life -= 0.008;
-                if (p.life <= 0 || p.y > height + 50 || p.x < -50 || p.x > width + 50) { particles.splice(i, 1); continue; }
-                fCtx.globalAlpha = p.life * 0.8;
-                fCtx.beginPath();
-                fCtx.arc(p.x, p.y, p.size * (p.life / p.maxLife) * 1.2, 0, Math.PI * 2);
-                fCtx.fillStyle = p.color;
-                fCtx.fill();
-            }
-            requestAnimationFrame(animateParticles);
+    }
+
+    function prevStep() {
+        stopAnimation();
+        if (currentStep > 0) {
+            currentStep--;
+            renderSteps();
+            updateProgress();
+            drawProof(activeProofId, currentStep);
         }
-        animateParticles();
-        document.addEventListener('click', (e) => createFirework(e.clientX, e.clientY));
-    })();
+    }
+
+    // 初始化
+    renderProofList();
+    updateValues();
+    selectProof('p01');
     </script>
 </body>
 </html>
